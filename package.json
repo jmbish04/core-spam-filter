@@ -16,8 +16,7 @@
   "directories": {
     "test": "tests"
   },
-  "type": "commonjs",
-  "main": "test_script.js",
+  "type": "module",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
