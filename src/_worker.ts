@@ -5,7 +5,7 @@ import { app as honoApp } from "./backend/api/index";
 export { EmailAnalyzerAgent };
 
 const handler = {
-  async fetch(request: any, env: any, ctx: any): Promise<any> {
+  async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     // Handle API routes with Hono
