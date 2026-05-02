@@ -3,6 +3,7 @@ import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -62,9 +63,11 @@ export function RulesConfig({ initialRules }: { initialRules: any[] }) {
         <h2 className="text-xl font-semibold mb-4">Add Rule</h2>
         <form onSubmit={addRule} className="flex gap-4 items-end">
           <div className="flex-1 space-y-2">
-            <label className="text-sm font-medium">Rule Type</label>
+            <Label htmlFor="rule-type" className="text-sm font-medium">
+              Rule Type
+            </Label>
             <Select value={ruleType} onValueChange={(val) => setRuleType(val || "keyword")}>
-              <SelectTrigger>
+              <SelectTrigger id="rule-type">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -75,12 +78,14 @@ export function RulesConfig({ initialRules }: { initialRules: any[] }) {
             </Select>
           </div>
           <div className="flex-1 space-y-2">
-            <label className="text-sm font-medium">Classification</label>
+            <Label htmlFor="classification-type" className="text-sm font-medium">
+              Classification
+            </Label>
             <Select
               value={classification}
               onValueChange={(val) => setClassification(val || "spam")}
             >
-              <SelectTrigger>
+              <SelectTrigger id="classification-type">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -90,8 +95,11 @@ export function RulesConfig({ initialRules }: { initialRules: any[] }) {
             </Select>
           </div>
           <div className="flex-[2] space-y-2">
-            <label className="text-sm font-medium">Value</label>
+            <Label htmlFor="rule-value" className="text-sm font-medium">
+              Value
+            </Label>
             <Input
+              id="rule-value"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="e.g. example.com"

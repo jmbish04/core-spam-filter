@@ -41,7 +41,7 @@ healthRouter.openapi(getHealthRoute, async (c) => {
   let d1Status = "Healthy";
   try {
     await env.DB.prepare("SELECT 1").run();
-  } catch (e) {
+  } catch {
     d1Status = "Unhealthy";
   }
   modules.push({
@@ -57,7 +57,7 @@ healthRouter.openapi(getHealthRoute, async (c) => {
   try {
     // A simple fast call
     await env.AI.run("@cf/baai/bge-base-en-v1.5", { text: ["test"] });
-  } catch (e) {
+  } catch {
     aiStatus = "Unhealthy";
   }
   modules.push({
