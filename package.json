@@ -16,7 +16,7 @@
   "directories": {
     "test": "tests"
   },
-  "type": "commonjs",
+  "type": "module",
   "main": "test_script.js",
   "scripts": {
     "dev": "astro dev",
@@ -29,9 +29,10 @@
     "db:generate": "drizzle-kit generate",
     "migrate:local": "pnpm run db:generate && npx wrangler d1 migrations apply DB --local",
     "migrate:remote": "pnpm run db:generate && npx wrangler d1 migrations apply DB --remote",
-    "deploy": "rm -f wrangler_deploy.log && pnpm run build && cp .assetsignore dist/.assetsignore && pnpm run migrate:remote && npx wrangler deploy > wrangler_deploy.log 2>&1",
+    "deploy": "rm -f wrangler_deploy.log && pnpm run build && cp .assetsignore dist/ && pnpm run migrate:remote && npx wrangler deploy > wrangler_deploy.log 2>&1",
     "deploy:tail": "npx wrangler tail",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "test": "playwright test"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.170",

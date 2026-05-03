@@ -1,3 +1,5 @@
+import type { ExecutionContext } from "@cloudflare/workers-types";
+
 import { EmailAnalyzerAgent } from "./backend/ai/agents/workflow/EmailAnalyzerAgent";
 import { app as honoApp } from "./backend/api/index";
 
@@ -5,7 +7,7 @@ import { app as honoApp } from "./backend/api/index";
 export { EmailAnalyzerAgent };
 
 const handler = {
-  async fetch(request: any, env: any, ctx: any): Promise<any> {
+  async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     // Handle API routes with Hono
@@ -16,7 +18,7 @@ const handler = {
       url.pathname === "/scalar" ||
       url.pathname === "/docs"
     ) {
-      return honoApp.fetch(request, env, ctx);
+      return honoApp.fetch(request as any, env, ctx) as unknown as Response;
     }
 
     // Let Astro handle everything else via the ASSETS binding

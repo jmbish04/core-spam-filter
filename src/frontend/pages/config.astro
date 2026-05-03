@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/config";
 import { RulesConfig } from "@/components/RulesConfig";
 
 // Fetch rules from API
-const API_URL = import.meta.env.PROD ? 'https://example.com' : 'http://localhost:4321';
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:4321';
 let rules = [];
 
 try {
