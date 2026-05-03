@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 
 import { emailsLog } from "../../../db/schemas/emails_log";
@@ -18,6 +19,37 @@ export class EmailAnalyzerAgent extends DurableObject {
     const env: any = this.env;
 
     const db = drizzle(env.DB);
+
+    // 1. Check if email was already processed
+    if (payload.message_id) {
+      const existingLog = await db
+        .select()
+        .from(emailsLog)
+        .where(eq(emailsLog.message_id, payload.message_id))
+        .limit(1);
+
+      if (existingLog.length > 0) {
+        const log = existingLog[0];
+        console.log(`Skipping AI, returning cached result for message_id: ${payload.message_id}`);
+        return new Response(
+          JSON.stringify({
+            spam: log.is_spam,
+            not_spam: !log.is_spam,
+            high_alert: log.is_high_alert,
+            likelihood_score_spam: log.spam_score,
+            likelihood_score_not_spam: 100 - (log.spam_score || 0),
+            rationale_spam: log.is_spam ? log.rationale : "",
+            rationale_not_spam: !log.is_spam ? log.rationale : "",
+            triggered_configurations: log.triggered_rules ? JSON.parse(log.triggered_rules) : [],
+          }),
+          {
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+    }
+
+    // 2. Fetch Rules
     const rules = await db.select().from(filterRules);
 
     // Create system prompt based on rules

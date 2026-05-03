@@ -1,0 +1,36 @@
+name: Deploy Apps Script
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'appscript/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install clasp
+        run: npm install -g @google/clasp
+
+      - name: Create ~/.clasprc.json
+        run: |
+          echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
+
+      - name: Create .clasp.json
+        run: |
+          echo '{ "scriptId": "${{ secrets.APPS_SCRIPT_ID }}", "rootDir": "appscript" }' > .clasp.json
+
+      - name: Push to Google Apps Script
+        run: clasp push --force
