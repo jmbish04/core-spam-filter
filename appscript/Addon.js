@@ -1,3 +1,6 @@
+// Gmail Addon UI functions
+// All functions marked with _ are private
+
 function onHomepage(e) {
   var card = CardService.newCardBuilder();
   card.setHeader(CardService.newCardHeader().setTitle("Core Spam Filter Settings"));
@@ -16,13 +19,13 @@ function onHomepage(e) {
       CardService.newTextInput()
         .setFieldName("workerUrl")
         .setTitle("Worker URL")
-        .setValue(getWorkerUrl() || ""),
+        .setValue(getWorkerUrl_() || ""),
     )
     .addWidget(
       CardService.newTextInput()
         .setFieldName("workerApiKey")
         .setTitle("Worker API Key")
-        .setValue(getWorkerSecret() || ""),
+        .setValue(getWorkerSecret_() || ""),
     )
     .addWidget(
       CardService.newTextButton()
@@ -84,7 +87,7 @@ function runManualSweep_(e) {
       .setNotification(CardService.newNotification().setText("Sweep completed."))
       .build();
   } catch (err) {
-    log_("runManualSweep", "Manual sweep failed", err.toString());
+    log_("runManualSweep_", "Manual sweep failed", err.toString());
     return CardService.newActionResponseBuilder()
       .setNotification(CardService.newNotification().setText("Sweep failed"))
       .build();
@@ -94,7 +97,7 @@ function runManualSweep_(e) {
 function saveConfig_(e) {
   var workerUrl = e.formInput.workerUrl;
   var workerApiKey = e.formInput.workerApiKey;
-  setConfig_(workerUrl, workerApiKey);
+  setConfig(workerUrl, workerApiKey);
   return CardService.newActionResponseBuilder()
     .setNotification(CardService.newNotification().setText("Configuration saved."))
     .build();
@@ -137,8 +140,11 @@ function askAgent_(e) {
   var messageId = e.parameters.messageId;
   var question = e.formInput.agentQuestion;
   var msg = GmailApp.getMessageById(messageId);
+  var inboxAccount = getEffectiveInboxAddress_();
+
   var payload = {
     message_id: messageId,
+    inbox_account: inboxAccount,
     sender: msg.getFrom(),
     recipient: msg.getTo(),
     subject: msg.getSubject(),
@@ -146,8 +152,8 @@ function askAgent_(e) {
     question: question,
   };
 
-  var url = getWorkerUrl() + "/api/emails/ask"; // New theoretical endpoint for custom agent Q&A
-  var secret = getWorkerSecret();
+  var url = getWorkerUrl_() + "/api/emails/ask";
+  var secret = getWorkerSecret_();
 
   var options = {
     method: "post",
@@ -180,38 +186,4 @@ function askAgent_(e) {
   return CardService.newActionResponseBuilder()
     .setNotification(CardService.newNotification().setText("Failed to reach agent"))
     .build();
-}
-
-function addRuleToWorker_(ruleType, classification, value) {
-  var url = getWorkerUrl() + "/api/rules";
-  var secret = getWorkerSecret();
-
-  var payload = {
-    rule_type: ruleType,
-    classification: classification,
-    value: value,
-  };
-
-  var options = {
-    method: "post",
-    contentType: "application/json",
-    headers: {
-      Authorization: "Bearer " + secret,
-    },
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true,
-  };
-
-  try {
-    var res = UrlFetchApp.fetch(url, options);
-    if (res.getResponseCode() !== 201 && res.getResponseCode() !== 200) {
-      log_(
-        "addRuleToWorker_",
-        "Adding rule returned " + res.getResponseCode(),
-        res.getContentText(),
-      );
-    }
-  } catch (err) {
-    log_("addRuleToWorker_", "Failed to add rule", err.toString());
-  }
 }

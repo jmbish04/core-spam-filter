@@ -7,6 +7,7 @@ const emailsRouter = new OpenAPIHono<{ Bindings: Bindings }>();
 // Define schema for analyze payload
 const AnalyzeEmailSchema = z.object({
   message_id: z.string().optional(),
+  inbox_account: z.string(),
   sender: z.string(),
   recipient: z.string(),
   cc: z.string().optional(),

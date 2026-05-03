@@ -11,6 +11,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        account:
+          - name: account1
+            script_id_secret: APPS_SCRIPT_ID_1
+          - name: account2
+            script_id_secret: APPS_SCRIPT_ID_2
 
     steps:
       - name: Checkout repository
@@ -28,9 +35,25 @@ jobs:
         run: |
           echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
 
-      - name: Create .clasp.json
+      - name: Create .clasp.json for ${{ matrix.account.name }}
         run: |
-          echo '{ "scriptId": "${{ secrets.APPS_SCRIPT_ID }}", "rootDir": "appscript" }' > .clasp.json
+          cat > .clasp.json << EOF
+          {
+            "scriptId": "${{ secrets[matrix.account.script_id_secret] }}",
+            "rootDir": "appscript",
+            "filePushOrder": [
+              "appscript/appsscript.json",
+              "appscript/Utils.js",
+              "appscript/Config.js",
+              "appscript/RuleManager.js",
+              "appscript/EmailProcessor.js",
+              "appscript/TriggerManager.js",
+              "appscript/Addon.js",
+              "appscript/Code.js"
+            ]
+          }
+          EOF
 
-      - name: Push to Google Apps Script
+      - name: Push to Google Apps Script (${{ matrix.account.name }})
         run: clasp push --force
+
