@@ -18,9 +18,33 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
+    routes: {
+      // Extend Cloudflare routes to include backend API routes
+      extend: {
+        include: ["/api/*"],
+        exclude: [],
+      },
+    },
   }),
   integrations: [react()],
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      // Cast through the Vite plugin type to work around the current
+      // Vite/@tailwindcss-vite HotUpdateOptions mismatch without dropping
+      // type information entirely.
+      tailwindcss() as unknown as import("vite").Plugin
+    ],
+    // Explicitly externalize node built-in modules for SSR
+    ssr: {
+      external: [
+        "node:fs/promises",
+        "node:path",
+        "node:url",
+        "node:crypto",
+        "node:buffer",
+        "node:stream",
+        "node:util",
+      ],
+    },
   },
 });
