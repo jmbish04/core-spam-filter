@@ -72,7 +72,7 @@ emailsRouter.openapi(analyzeRoute, async (c) => {
     }
   }
 
-  if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.split(" ")[1] !== secret) {
+  if (!secret || !authHeader || !authHeader.startsWith("Bearer ") || authHeader.split(" ")[1] !== secret) {
     return c.json({ error: "Unauthorized" }, 401) as any;
   }
 
