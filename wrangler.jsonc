@@ -25,10 +25,11 @@
       "migrations_dir": "./drizzle",
     },
   ],
+  // wrangler vectorize create core-spam-filter --preset @cf/baai/bge-large-en-v1.5
   "vectorize": [
     {
       "binding": "VECTOR_INDEX",
-      "index_name": "email-vectors",
+      "index_name": "core-spam-filter",
     },
   ],
   "ai": {
