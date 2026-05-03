@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "core-spam-filter",
-  "main": "dist/_worker.js/index.js",
+  "main": "src/_worker.ts",
   "compatibility_date": "2026-05-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
@@ -21,16 +21,14 @@
       "binding": "DB",
       "database_name": "core-spam-filter",
       "database_id": "6903894a-b54a-4183-aa0b-674e3a6e1671",
-      "migrations_dir": "./drizzle",
-      "remote": true
+      "migrations_dir": "./drizzle"
     },
   ],
   // wrangler vectorize create core-spam-filter --preset @cf/baai/bge-large-en-v1.5
   "vectorize": [
     {
       "binding": "VECTOR_INDEX",
-      "index_name": "core-spam-filter",
-      "remote": true
+      "index_name": "core-spam-filter"
     },
   ],
   "ai": {
