@@ -21,7 +21,7 @@ export class EmailAnalyzerAgent extends DurableObject {
     const db = drizzle(env.DB);
 
     // 1. Check if email was already processed
-    if (payload.message_id && payload.inbox_account) {
+    if (payload.message_id) {
       const existingLog = await db
         .select()
         .from(emailsLog)
@@ -132,7 +132,6 @@ Body: ${payload.body}
       await db.insert(emailsLog).values({
         id: crypto.randomUUID(),
         message_id: payload.message_id || null,
-        inbox_account: payload.inbox_account || "unknown",
         sender: payload.sender,
         recipient: payload.recipient,
         cc: payload.cc || null,

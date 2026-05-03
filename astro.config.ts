@@ -1,4 +1,5 @@
 // @ts-check
+import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
@@ -11,14 +12,15 @@ export default defineConfig({
   site,
   srcDir: "./src/frontend",
   base,
-  output: "static",
+  output: "server",
+  adapter: cloudflare({
+    imageService: "cloudflare",
+    platformProxy: {
+      enabled: true,
+    },
+  }),
   integrations: [react()],
   vite: {
-    plugins: [
-      // Cast through the Vite plugin type to work around the current
-      // Vite/@tailwindcss-vite HotUpdateOptions mismatch without dropping
-      // type information entirely.
-      tailwindcss() as unknown as import("vite").Plugin
-    ],
+    plugins: [tailwindcss()],
   },
 });

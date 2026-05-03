@@ -4,11 +4,7 @@
   "filePushOrder": [
     "appscript/appsscript.json",
     "appscript/Utils.js",
-    "appscript/Config.js",
-    "appscript/RuleManager.js",
-    "appscript/EmailProcessor.js",
-    "appscript/TriggerManager.js",
-    "appscript/Addon.js",
-    "appscript/Code.js"
+    "appscript/Code.js",
+    "appscript/Addon.js"
   ]
 }

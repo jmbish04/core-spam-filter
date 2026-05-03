@@ -8,7 +8,6 @@ import { appscriptLogs } from "../../db/schemas/appscript_logs";
 const logsRouter = new OpenAPIHono<{ Bindings: Bindings }>();
 
 const LogSchema = z.object({
-  inbox_account: z.string(),
   function_name: z.string().optional(),
   error_summary: z.string().optional(),
   full_error: z.string().optional(),
@@ -70,7 +69,6 @@ logsRouter.openapi(postLogRoute, async (c) => {
   try {
     await db.insert(appscriptLogs).values({
       id: crypto.randomUUID(),
-      inbox_account: payload.inbox_account,
       function_name: payload.function_name || null,
       error_summary: payload.error_summary || null,
       full_error: payload.full_error || null,

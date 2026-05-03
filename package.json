@@ -29,7 +29,7 @@
     "db:generate": "drizzle-kit generate",
     "migrate:local": "pnpm run db:generate && npx wrangler d1 migrations apply DB --local",
     "migrate:remote": "pnpm run db:generate && npx wrangler d1 migrations apply DB --remote",
-    "deploy": "pnpm run build && cp .assetsignore dist/ && pnpm run migrate:remote && npx wrangler deploy",
+    "deploy": "pnpm run build && cp .assetsignore dist/ && npx wrangler deploy",
     "deploy:tail": "npx wrangler tail",
     "cf-typegen": "wrangler types",
     "test": "playwright test"
@@ -80,6 +80,6 @@
     "oxfmt": "^0.35.0",
     "oxlint": "^1.61.0",
     "typescript": "^5.9.3",
-    "wrangler": "^4.85.0"
+    "wrangler": "^3.109.2"
   }
 }
