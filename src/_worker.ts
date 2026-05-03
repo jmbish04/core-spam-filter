@@ -1,5 +1,6 @@
+// src/_worker.ts
 import type { ExecutionContext } from "@cloudflare/workers-types";
-
+import { handler as astroHandler } from "@astrojs/cloudflare/handler";
 import { EmailAnalyzerAgent } from "./backend/ai/agents/workflow/EmailAnalyzerAgent";
 import { app as honoApp } from "./backend/api/index";
 
@@ -21,8 +22,8 @@ const handler = {
       return honoApp.fetch(request as any, env, ctx) as unknown as Response;
     }
 
-    // Let Astro handle everything else via the ASSETS binding
-    return env.ASSETS.fetch(request);
+    // Pass all other requests to the Astro SSR engine
+    return astroHandler(request, env, ctx);
   },
 };
 
