@@ -53,4 +53,11 @@
     "DEFAULT_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     "EMBEDDING_MODEL": "@cf/baai/bge-base-en-v1.5",
   },
+  "secrets_store_secrets": [
+    {
+      "binding": "WORKER_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "WORKER_API_KEY",
+    },
+  ],
 }

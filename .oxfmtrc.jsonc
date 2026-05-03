@@ -12,6 +12,7 @@
     "**/.astro",
     "**/.netlify",
     "playwright-report",
+    "appscript",
   ],
   "sortImports": {
     "groups": [

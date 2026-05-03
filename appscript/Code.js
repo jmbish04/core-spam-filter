@@ -1,22 +1,27 @@
-// Configuration
-const API_URL = "YOUR_CLOUDFLARE_WORKER_URL/api/emails/analyze"; // e.g. https://core-spam-filter.workers.dev/api/emails/analyze
-const APPS_SCRIPT_SECRET = "YOUR_SECRET_TOKEN";
-const SPAM_LABEL_NAME = "AI_Spam";
+var SPAM_LABEL_NAME = "AI_Spam";
 
-function processRecentEmails() {
-  const label = getOrCreateLabel(SPAM_LABEL_NAME);
+function getWorkerUrl() {
+  var props = PropertiesService.getScriptProperties();
+  return props.getProperty("WORKER_URL");
+}
+
+function getWorkerSecret() {
+  var props = PropertiesService.getScriptProperties();
+  return props.getProperty("WORKER_API_KEY");
+}
+
+function processRecentEmails_() {
+  var label = getOrCreateLabel_(SPAM_LABEL_NAME);
 
   // Search for emails in Inbox from the last 24 hours
-  // 'newer_than:1d' ensures we only look at recent emails.
-  // 'in:inbox' restricts to inbox (adjust if you want to scan all mail)
-  const threads = GmailApp.search("in:inbox newer_than:1d -label:" + SPAM_LABEL_NAME);
+  var threads = GmailApp.search("in:inbox newer_than:1d -label:" + SPAM_LABEL_NAME);
 
-  for (let i = 0; i < threads.length; i++) {
-    const messages = threads[i].getMessages();
-    for (let j = 0; j < messages.length; j++) {
-      const msg = messages[j];
+  for (var i = 0; i < threads.length; i++) {
+    var messages = threads[i].getMessages();
+    for (var j = 0; j < messages.length; j++) {
+      var msg = messages[j];
 
-      const payload = {
+      var payload = {
         message_id: msg.getId(),
         sender: msg.getFrom(),
         recipient: msg.getTo(),
@@ -27,62 +32,70 @@ function processRecentEmails() {
         date: msg.getDate().toISOString(),
       };
 
-      const result = analyzeEmail(payload);
+      var result = analyzeEmail_(payload);
 
       if (result && result.spam) {
         msg.getThread().addLabel(label);
-        // Optionally, remove from inbox:
-        // msg.getThread().moveToArchive();
       }
     }
   }
 }
 
-function analyzeEmail(payload) {
-  const options = {
+function analyzeEmail_(payload) {
+  var url = getWorkerUrl() + "/api/emails/analyze";
+  var secret = getWorkerSecret();
+
+  var options = {
     method: "post",
     contentType: "application/json",
     headers: {
-      Authorization: "Bearer " + APPS_SCRIPT_SECRET,
+      Authorization: "Bearer " + secret,
     },
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
   };
 
   try {
-    const response = UrlFetchApp.fetch(API_URL, options);
+    var response = UrlFetchApp.fetch(url, options);
     if (response.getResponseCode() === 200) {
       return JSON.parse(response.getContentText());
     } else {
-      Logger.log("API Error: " + response.getResponseCode() + " " + response.getContentText());
+      log_(
+        "analyzeEmail_",
+        "API returned " + response.getResponseCode(),
+        response.getContentText(),
+      );
       return null;
     }
   } catch (e) {
-    Logger.log("Fetch failed: " + e.toString());
+    log_("analyzeEmail_", "Fetch failed", e.toString());
     return null;
   }
 }
 
-function getOrCreateLabel(labelName) {
-  let label = GmailApp.getUserLabelByName(labelName);
+function getOrCreateLabel_(labelName) {
+  var label = GmailApp.getUserLabelByName(labelName);
   if (!label) {
     label = GmailApp.createLabel(labelName);
   }
   return label;
 }
 
-// Function to set up the time-driven trigger (run this manually once)
-function createTrigger() {
-  // Check if trigger already exists to avoid duplicates
-  const triggers = ScriptApp.getProjectTriggers();
-  for (let i = 0; i < triggers.length; i++) {
-    if (triggers[i].getHandlerFunction() === "processRecentEmails") {
+function createTrigger_() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === "processRecentEmails_") {
       Logger.log("Trigger already exists.");
       return;
     }
   }
 
-  // Create a trigger to run every hour (adjust frequency as needed)
-  ScriptApp.newTrigger("processRecentEmails").timeBased().everyHours(1).create();
+  ScriptApp.newTrigger("processRecentEmails_").timeBased().everyHours(1).create();
   Logger.log("Trigger created successfully.");
+}
+
+function setConfig_(workerUrl, workerApiKey) {
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty("WORKER_URL", workerUrl);
+  props.setProperty("WORKER_API_KEY", workerApiKey);
 }

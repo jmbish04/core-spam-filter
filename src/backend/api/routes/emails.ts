@@ -61,7 +61,16 @@ const analyzeRoute = createRoute({
 
 emailsRouter.openapi(analyzeRoute, async (c) => {
   const authHeader = c.req.header("Authorization");
-  const secret = c.env.APPS_SCRIPT_SECRET; // Ensure this is available in Bindings
+  let secret = c.env.APPS_SCRIPT_SECRET;
+
+  if (c.env.WORKER_API_KEY) {
+    try {
+      const apiKeyVal = await c.env.WORKER_API_KEY.get();
+      if (apiKeyVal) secret = apiKeyVal;
+    } catch (e) {
+      console.warn("Could not get WORKER_API_KEY from secrets store", e);
+    }
+  }
 
   if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.split(" ")[1] !== secret) {
     return c.json({ error: "Unauthorized" }, 401) as any;

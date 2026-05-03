@@ -1,17 +1,4 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn",
-    "react",
-    "react-perf",
-    "import",
-    "jsx-a11y",
-    "node",
-    "promise",
-    "vitest",
-    "vue",
-  ],
   "ignorePatterns": [
     "*.min.*",
     "*.map",
@@ -23,5 +10,7 @@
     "**/.next",
     "**/.astro",
     "**/.netlify",
+    "playwright-report",
+    "appscript",
   ],
 }
