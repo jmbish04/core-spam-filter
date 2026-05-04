@@ -17,7 +17,7 @@
     "test": "tests"
   },
   "type": "module",
-  "main": "test_script.js",
+  "main": "src/_worker.ts",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

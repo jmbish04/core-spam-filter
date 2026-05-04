@@ -1,24 +1,28 @@
 ---
-import { ConfigTabs } from "@/components/config/ConfigTabs";
-import { Sidebar } from "@/components/Sidebar";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/lib/config";
+import { RulesConfig } from "@/components/RulesConfig";
 
-if (!Astro.cookies.has("cr_session")) {
-  return Astro.redirect("/login");
+// Fetch rules from API
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:4321';
+let rules = [];
+
+try {
+  const res = await fetch(`${API_URL}/api/rules`);
+  if (res.ok) {
+    rules = await res.json();
+  }
+} catch (e) {
+  console.error("Error fetching rules", e);
 }
 ---
 
-<BaseLayout title="Config | Career Orchestrator" description="Global Colby configuration.">
-  <div class="flex flex-1">
-    <Sidebar client:load />
-    <section class="min-w-0 flex-1">
-      <div class="mx-auto grid w-full max-w-screen-2xl gap-5 px-4 py-5 lg:px-8">
-        <div>
-          <h1 class="text-2xl font-semibold tracking-tight">Config</h1>
-          <p class="mt-1 text-sm text-muted-foreground">Global rules and document source data used by Colby.</p>
-        </div>
-        <ConfigTabs client:load />
-      </div>
-    </section>
+<BaseLayout
+  title={`Configuration | ${siteConfig.name}`}
+  description={siteConfig.description}
+>
+  <div class="container py-8 space-y-8">
+    <h1 class="text-3xl font-bold">Configuration</h1>
+    <RulesConfig initialRules={rules} client:load />
   </div>
 </BaseLayout>

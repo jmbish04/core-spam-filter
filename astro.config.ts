@@ -18,43 +18,9 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
-    sessionKVBindingName: "SESSIONS",
-    routes: {
-      // Extend Cloudflare routes to include backend API routes
-      extend: {
-        include: ["/api/*"],
-        exclude: [],
-      },
-    },
-    workerEntryPoint: {
-      path: "src/_worker.ts",
-      namedExports: [
-        "EmailAnalyzerAgent",
-      ],
-    },    
   }),
   integrations: [react()],
   vite: {
-    plugins: [
-      // Cast through the Vite plugin type to work around the current
-      // Vite/@tailwindcss-vite HotUpdateOptions mismatch without dropping
-      // type information entirely.
-      tailwindcss() as unknown as import("vite").Plugin
-    ],
-    // Explicitly externalize node built-in modules for SSR
-    ssr: {
-      external: [
-        "node:fs/promises",
-        "node:path",
-        "node:url",
-        "node:crypto",
-        "node:buffer",
-        "node:stream",
-        "node:util",
-        "agents",
-        "cloudflare:workers",
-        "notebooklm-sdk",
-      ],
-    },
+    plugins: [tailwindcss()],
   },
 });
