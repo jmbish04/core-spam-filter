@@ -22,9 +22,11 @@ export type Bindings = {
   DB: D1Database;
   AI: Ai;
   VECTOR_INDEX: VectorizeIndex;
-  EmailAgent: DurableObjectNamespace;
+  SpamAgent: DurableObjectNamespace;
   WORKER_API_KEY?: SecretsStoreSecret;
   APPS_SCRIPT_SECRET?: string;
+  DEFAULT_MODEL: string;
+  EMBEDDING_MODEL: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();

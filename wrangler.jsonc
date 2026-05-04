@@ -37,8 +37,8 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "EmailAgent",
-        "class_name": "EmailAnalyzerAgent",
+        "name": "SpamAgent",
+        "class_name": "SpamAgent",
       },
     ],
   },
@@ -46,6 +46,15 @@
     {
       "tag": "v1",
       "new_sqlite_classes": ["EmailAnalyzerAgent"],
+    },
+    {
+      "tag": "v2",
+      "renamed_classes": [
+        {
+          "from": "EmailAnalyzerAgent",
+          "to": "SpamAgent",
+        },
+      ],
     },
   ],
   "vars": {

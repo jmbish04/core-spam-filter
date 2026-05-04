@@ -84,8 +84,8 @@ emailsRouter.openapi(analyzeRoute, async (c) => {
   const payload = c.req.valid("json");
 
   // Trigger Durable Object Workflow Agent here
-  const agentId = c.env.EmailAgent.idFromName("singleton"); // Or a distinct ID per request if parallel
-  const agent = c.env.EmailAgent.get(agentId);
+  const agentId = c.env.SpamAgent.idFromName("singleton"); // Or a distinct ID per request if parallel
+  const agent = c.env.SpamAgent.get(agentId);
 
   try {
     const res = await agent.fetch("http://agent/analyze", {

@@ -1,10 +1,11 @@
 import type { ExecutionContext } from "@cloudflare/workers-types";
+import { routeAgentRequest } from "agents";
 
-import { EmailAnalyzerAgent } from "./backend/ai/agents/workflow/EmailAnalyzerAgent";
+import { SpamAgent } from "./backend/ai/agents/SpamAgent";
 import { app as honoApp } from "./backend/api/index";
 
-// Export the Durable Object
-export { EmailAnalyzerAgent };
+// Export the Agent (Durable Object)
+export { SpamAgent };
 
 const handler = {
   async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
@@ -19,6 +20,11 @@ const handler = {
       url.pathname === "/docs"
     ) {
       return honoApp.fetch(request as any, env, ctx) as unknown as Response;
+    }
+
+    // Handle Agent routes
+    if (url.pathname.startsWith("/agents/")) {
+      return routeAgentRequest(request, env);
     }
 
     // Let Astro handle everything else via the ASSETS binding
