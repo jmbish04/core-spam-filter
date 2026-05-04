@@ -2,11 +2,11 @@ import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 
-import type { Bindings } from "../index";
+
 
 import { emailsLog } from "../../db/schemas/emails_log";
 
-const alertsRouter = new OpenAPIHono<{ Bindings: Bindings }>();
+const alertsRouter = new OpenAPIHono<{ Bindings: Env }>();
 
 const EmailLogSchema = z.object({
   id: z.string(),
