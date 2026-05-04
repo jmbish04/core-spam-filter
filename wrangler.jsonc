@@ -4,35 +4,48 @@
   "main": "src/_worker.ts",
   "compatibility_date": "2026-05-01",
   "compatibility_flags": ["nodejs_compat"],
+  "upload_source_maps": true,
+  "workers_dev": true,
+  "preview_urls": true,
   "observability": {
     "enabled": true,
+    "head_sampling_rate": 1,
     "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
       "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": true,
+      "persist": true,
       "head_sampling_rate": 1,
     },
   },
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application",
+    "binding": "ASSETS"
   },
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "spam-filter-db",
-      "database_id": "d126139f-6f57-49d2-bbc4-d20bbd46bbf4",
-      "preview_database_id": "d126139f-6f57-49d2-bbc4-d20bbd46bbf4",
+      "database_name": "core-spam-filter",
+      "database_id": "6903894a-b54a-4183-aa0b-674e3a6e1671",
       "migrations_dir": "./drizzle",
+      "remote": true
     },
   ],
+  // wrangler vectorize create core-spam-filter --preset @cf/baai/bge-large-en-v1.5
   "vectorize": [
     {
       "binding": "VECTOR_INDEX",
-      "index_name": "email-vectors",
+      "index_name": "core-spam-filter",
+      "remote": true
     },
   ],
   "ai": {
     "binding": "AI",
+    "remote": true
   },
   "durable_objects": {
     "bindings": [
@@ -49,15 +62,79 @@
     },
   ],
   "vars": {
-    "AI_GATEWAY_NAME": "core-spam-gateway",
+    "AI_GATEWAY_NAME": "default-gateway",
     "DEFAULT_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     "EMBEDDING_MODEL": "@cf/baai/bge-base-en-v1.5",
   },
-  "secrets_store_secrets": [
+    "secrets_store_secrets": [
+    {
+      "binding": "GITHUB_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "GH_TOKEN",
+    },
+    {
+      "binding": "CLOUDFLARE_ACCOUNT_ID",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_ACCOUNT_ID",
+    },
+    {
+      "binding": "CLOUDFLARE_WRANGLER_API_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_WRANGLER_API_TOKEN",
+    },
+    {
+      "binding": "CLOUDFLARE_AI_SEARCH_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_AI_SEARCH_TOKEN",
+    },
     {
       "binding": "WORKER_API_KEY",
       "store_id": "8c42fa70938644e0a8a109744467375f",
       "secret_name": "WORKER_API_KEY",
     },
-  ],
-}
+    {
+      "binding": "AGENTIC_WORKER_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "AGENTIC_WORKER_API_KEY",
+    },
+    {
+      "binding": "AI_GATEWAY_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_AI_GATEWAY_TOKEN",
+    },
+    {
+      "binding": "CF_BROWSER_RENDER_TOKEN",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "CLOUDFLARE_BROWSER_RENDER_TOKEN",
+    },
+    {
+      "binding": "JULES_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "JULES_API_KEY",
+    },
+    {
+      "binding": "STITCH_API_KEY",
+      "store_id": "8c42fa70938644e0a8a109744467375f",
+      "secret_name": "STITCH_API_KEY",
+    },
+	{
+		"binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1",
+		"store_id": "8c42fa70938644e0a8a109744467375f",
+		"secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_1",
+	},
+	{
+		"binding": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2",
+		"store_id": "8c42fa70938644e0a8a109744467375f",
+		"secret_name": "GOOGLE_CREDS_SA_PRIVATE_KEY_PT_2",
+	},
+	{
+		"binding": "GOOGLE_CREDS_SA_CLIENT_EMAIL",
+		"store_id": "8c42fa70938644e0a8a109744467375f",
+		"secret_name": "GOOGLE_CREDS_SA_CLIENT_EMAIL",
+	},
+	{
+		"binding": "NOTEBOOKLM_AUTH_TOKEN",
+		"store_id": "8c42fa70938644e0a8a109744467375f",
+		"secret_name": "NOTEBOOKLM_AUTH_TOKEN",
+	},
+],
