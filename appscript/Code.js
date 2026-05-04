@@ -42,6 +42,7 @@ function processRecentEmails() {
       const msg = messages[j];
 
       const payload = {
+        account_email: getCurrentAccount_(),
         message_id: msg.getId(),
         sender: msg.getFrom(),
         recipient: msg.getTo(),
