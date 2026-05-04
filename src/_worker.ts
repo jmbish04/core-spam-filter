@@ -11,13 +11,19 @@ const handler = {
   async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
-    // Handle API routes with Hono
+    // Handle API routes with Hono - explicitly scoped to /api/*
+    if (url.pathname.startsWith("/api/")) {
+      return honoApp.fetch(request as any, env, ctx) as unknown as Response;
+    }
+
+    // Handle OpenAPI documentation routes
     if (
-      url.pathname.startsWith("/api/") ||
       url.pathname === "/openapi.json" ||
       url.pathname === "/swagger" ||
       url.pathname === "/scalar" ||
-      url.pathname === "/docs"
+      url.pathname === "/docs" ||
+      url.pathname === "/health" ||
+      url.pathname === "/context"
     ) {
       return honoApp.fetch(request as any, env, ctx) as unknown as Response;
     }
@@ -27,7 +33,8 @@ const handler = {
       return routeAgentRequest(request, env);
     }
 
-    // Let Astro handle everything else via the ASSETS binding
+    // Fallback: Let Astro SSR handle all other routes via the ASSETS binding
+    // This delegates frontend routes to the Astro SSR handler
     return env.ASSETS.fetch(request);
   },
 };

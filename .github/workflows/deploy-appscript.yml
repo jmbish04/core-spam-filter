@@ -28,9 +28,10 @@ jobs:
         run: |
           echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
 
-      - name: Create .clasp.json
+      - name: Deploy to both environments
+        env:
+          GMAIL_SCRIPT_ID: ${{ secrets.GMAIL_SCRIPT_ID }}
+          COLBY_SCRIPT_ID: ${{ secrets.COLBY_SCRIPT_ID }}
         run: |
-          echo '{ "scriptId": "${{ secrets.APPS_SCRIPT_ID }}", "rootDir": "appscript" }' > .clasp.json
-
-      - name: Push to Google Apps Script
-        run: clasp push --force
+          chmod +x scripts/deploy-appscript.sh
+          bash scripts/deploy-appscript.sh
