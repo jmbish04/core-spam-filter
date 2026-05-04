@@ -1,11 +1,11 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { drizzle } from "drizzle-orm/d1";
 
-import type { Bindings } from "../index";
+
 
 import { appscriptLogs } from "../../db/schemas/appscript_logs";
 
-const logsRouter = new OpenAPIHono<{ Bindings: Bindings }>();
+const logsRouter = new OpenAPIHono<{ Bindings: Env }>();
 
 const LogSchema = z.object({
   function_name: z.string().optional(),
