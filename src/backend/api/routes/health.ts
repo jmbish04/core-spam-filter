@@ -1,8 +1,8 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-import type { Bindings } from "../index";
 
-const healthRouter = new OpenAPIHono<{ Bindings: Bindings }>();
+
+const healthRouter = new OpenAPIHono<{ Bindings: Env }>();
 
 const HealthSchema = z.object({
   status: z.string(),
