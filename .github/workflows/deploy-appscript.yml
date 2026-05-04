@@ -7,6 +7,16 @@ on:
     paths:
       - 'appscript/**'
   workflow_dispatch:
+      inputs:
+        target_project:
+          description: 'Which project to deploy to'
+          required: true
+          type: choice
+          default: 'both'
+          options:
+            - both
+            - 126colby
+            - gmail
 
 jobs:
   deploy:
@@ -26,7 +36,7 @@ jobs:
 
       - name: Create ~/.clasprc.json
         run: |
-          echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
+          echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
 
       - name: Deploy to 126COLBY Project
         run: |
