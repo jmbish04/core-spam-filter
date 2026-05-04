@@ -1,10 +1,9 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+import { getAgentByName } from "agents";
+import type { SpamAgent } from "@/backend/ai/agents/SpamAgent"; // Adjust path to your agent
 
-import type { Bindings } from "../index";
+const emailsRouter = new OpenAPIHono<{ Bindings: Env }>();
 
-const emailsRouter = new OpenAPIHono<{ Bindings: Bindings }>();
-
-// Define schema for analyze payload
 const AnalyzeEmailSchema = z.object({
   message_id: z.string().optional(),
   sender: z.string(),
@@ -61,19 +60,17 @@ const analyzeRoute = createRoute({
 
 emailsRouter.openapi(analyzeRoute, async (c) => {
   const authHeader = c.req.header("Authorization");
-  let secret = c.env.APPS_SCRIPT_SECRET;
+  
+  // 1. Access the secret directly as a string from the env object
+  const secret = await c.env.WORKER_API_KEY.get();
 
-  if (c.env.WORKER_API_KEY) {
-    try {
-      const apiKeyVal = await c.env.WORKER_API_KEY.get();
-      if (apiKeyVal) secret = apiKeyVal;
-    } catch (e) {
-      console.warn("Could not get WORKER_API_KEY from secrets store", e);
-    }
+  if (!secret) {
+    console.warn("WORKER_API_KEY is not configured in the worker secret store secret bindings.");
+    return c.json({ error: "Server misconfiguration" }, 500) as any;
   }
 
+  // 2. Validate the authorization header
   if (
-    !secret ||
     !authHeader ||
     !authHeader.startsWith("Bearer ") ||
     authHeader.split(" ")[1] !== secret
@@ -83,25 +80,14 @@ emailsRouter.openapi(analyzeRoute, async (c) => {
 
   const payload = c.req.valid("json");
 
-  // Trigger Durable Object Workflow Agent here
-  const agentId = c.env.SpamAgent.idFromName("singleton"); // Or a distinct ID per request if parallel
-  const agent = c.env.SpamAgent.get(agentId);
+  // 3. Use the Agents SDK helper to get the typed RPC stub
+  // "global" is the instance name to match your agent's initial state
+  const agent = await getAgentByName(c.env.SpamAgent, "global");
 
   try {
-    const res = await agent.fetch("http://agent/analyze", {
-      method: "POST",
-      body: JSON.stringify(payload),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!res.ok) {
-      console.error("Agent error", await res.text());
-      return c.json({ error: "Agent failed" }, 500) as any;
-    }
-
-    const data = await res.json();
+    // 4. Direct RPC Call via the Agents SDK
+    const data = await agent.analyzeEmail(payload);
+    
     return c.json(data as z.infer<typeof AnalyzeEmailResponseSchema>);
   } catch (e: any) {
     console.error("Agent communication error", e);
