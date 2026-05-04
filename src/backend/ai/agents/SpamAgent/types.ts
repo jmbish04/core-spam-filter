@@ -18,7 +18,8 @@ export type SpamTask = {
 
 export type SpamAgentState = {
   roleId: string | "global";
-  pendingTasks: OrchestratorTask[];
+  pendingTasks: SpamTask[];
+  processedCount: number;
 };
 
 
