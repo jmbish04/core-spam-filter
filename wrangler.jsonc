@@ -62,24 +62,14 @@
       {
         "name": "SpamAgent",
         "class_name": "SpamAgent",
-      },
-      {
-        "name": "ORCHESTRATOR_AGENT",
-        "class_name": "OrchestratorAgent",
-      },
-      {
-        "name": "NOTEBOOKLM_AGENT",
-        "class_name": "NotebookLMAgent",
-      },
+      }
     ],
   },
   "migrations": [
     {
       "tag": "v1",
       "new_sqlite_classes": [
-        "SpamAgent", 
-        "ORCHESTRATOR_AGENT", 
-        "NOTEBOOKLM_AGENT"
+        "SpamAgent"
       ],
     },
   ],
