@@ -5,63 +5,43 @@ import { drizzle } from "drizzle-orm/d1";
 import { emailsLog } from "../../../db/schemas/emails_log";
 import { filterRules } from "../../../db/schemas/filter_rules";
 
-interface SpamAgentState {
-  id: string;
-}
+import type { SpamAgentState } from "./types"
 
-interface SpamAgentEnv extends AgentEnv {
-  DB: D1Database;
-  VECTOR_INDEX: VectorizeIndex;
-  AI: Ai;
-  DEFAULT_MODEL: string;
-  EMBEDDING_MODEL: string;
-}
 
-export class SpamAgent extends Agent<SpamAgentEnv, SpamAgentState> {
-  constructor(state: DurableObjectState, env: SpamAgentEnv) {
-    super(state, env);
+export class SpamAgent extends Agent<Env, SpamAgentState> {
+  // Define initial state. The Agents SDK will automatically
+  // persist this to its embedded SQLite database. No manual migrations needed!
+  initialState: SpamAgentState = {
+    processedCount: 0,
+  };
 
-    // Run SQLite migrations on first initialization
-    state.blockConcurrencyWhile(async () => {
-      const sql = state.storage.sql;
+  // 3. Use onRequest to handle standard HTTP POSTs (e.g. webhooks)
+  async onRequest(request: Request) {
+    if (request.method !== "POST") {
+      return new Response("Method not allowed", { status: 405 });
+    }
 
-      // Check if migrations table exists
-      const tables = await sql.exec(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='_sql_schema_migrations'"
+    try {
+      const payload: any = await request.json();
+      const result = await this.analyzeEmail(payload);
+
+      // (Optional) Update agent state natively to track lifetime spam processing
+      const currentState = this.state?.processedCount || 0;
+      this.setState({ processedCount: currentState + 1 });
+
+      return new Response(JSON.stringify(result), {
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.error("SpamAgent Error:", error);
+      return new Response(
+        JSON.stringify({ error: error instanceof Error ? error.message : "Internal error" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
       );
-
-      if (tables.rows.length === 0) {
-        // Create migrations tracking table
-        await sql.exec(`
-          CREATE TABLE _sql_schema_migrations (
-            version INTEGER PRIMARY KEY,
-            applied_at TEXT NOT NULL
-          )
-        `);
-      }
-
-      // Check current schema version
-      const currentVersion = await sql.exec(
-        "SELECT MAX(version) as version FROM _sql_schema_migrations"
-      );
-      const version = currentVersion.rows[0]?.version || 0;
-
-      // Run migrations if needed
-      if (version < 1) {
-        // Migration v1: Create agent state table
-        await sql.exec(`
-          CREATE TABLE IF NOT EXISTS agent_state (
-            key TEXT PRIMARY KEY,
-            value TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-          )
-        `);
-
-        await sql.exec(
-          `INSERT INTO _sql_schema_migrations (version, applied_at) VALUES (1, ?)`
-        ).bind(new Date().toISOString());
-      }
-    });
+    }
   }
 
   async analyzeEmail(payload: {
@@ -73,9 +53,10 @@ export class SpamAgent extends Agent<SpamAgentEnv, SpamAgentState> {
     subject: string;
     body: string;
   }) {
+    // 4. Access your bindings directly via this.env
     const db = drizzle(this.env.DB);
 
-    // 1. Check if email was already processed
+    // Check if email was already processed
     if (payload.message_id) {
       const existingLog = await db
         .select()
@@ -85,9 +66,7 @@ export class SpamAgent extends Agent<SpamAgentEnv, SpamAgentState> {
 
       if (existingLog.length > 0) {
         const log = existingLog[0];
-        console.log(
-          `Skipping AI, returning cached result for message_id: ${payload.message_id}`
-        );
+        console.log(`Skipping AI, returning cached result for message_id: ${payload.message_id}`);
 
         let triggeredConfigs = [];
         if (log.triggered_rules) {
@@ -111,13 +90,14 @@ export class SpamAgent extends Agent<SpamAgentEnv, SpamAgentState> {
       }
     }
 
-    // 2. Fetch Rules
+    // Fetch Rules
     const rules = await db.select().from(filterRules);
 
     // Create system prompt based on rules
     const rulesStr = rules
       .map((r: any) => `${r.rule_type}: ${r.value} -> ${r.classification}`)
       .join("\n");
+
     const systemPrompt = `You are a core spam filter and triage system. Analyze the provided email and rules.
 Determine if the email is spam, high_alert, etc. Give scores and rationale.
 Return ONLY valid JSON matching this schema:
@@ -202,29 +182,5 @@ Body: ${payload.body}
     }
 
     return aiResult;
-  }
-
-  async fetch(request: Request) {
-    if (request.method !== "POST") {
-      return new Response("Method not allowed", { status: 405 });
-    }
-
-    try {
-      const payload = await request.json();
-      const result = await this.analyzeEmail(payload);
-
-      return new Response(JSON.stringify(result), {
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch (error) {
-      console.error("SpamAgent Error:", error);
-      return new Response(
-        JSON.stringify({ error: error instanceof Error ? error.message : "Internal error" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
   }
 }
