@@ -57,7 +57,7 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "EmailAgent",
+        "name": "EMAIL_AGENT",
         "class_name": "EmailAnalyzerAgent",
       },
     ],
