@@ -6,9 +6,9 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { apiReference } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
 
-import type { Bindings } from "../index";
 
-const openapiRouter = new Hono<{ Bindings: Bindings }>();
+
+const openapiRouter = new Hono<{ Bindings: Env }>();
 
 // OpenAPI specification
 const openApiSpec = {
