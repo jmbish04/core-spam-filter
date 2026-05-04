@@ -1,0 +1,28 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/lib/config";
+import { RulesConfig } from "@/components/RulesConfig";
+
+// Fetch rules from API
+const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:4321';
+let rules = [];
+
+try {
+  const res = await fetch(`${API_URL}/api/rules`);
+  if (res.ok) {
+    rules = await res.json();
+  }
+} catch (e) {
+  console.error("Error fetching rules", e);
+}
+---
+
+<BaseLayout
+  title={`Configuration | ${siteConfig.name}`}
+  description={siteConfig.description}
+>
+  <div class="container py-8 space-y-8">
+    <h1 class="text-3xl font-bold">Configuration</h1>
+    <RulesConfig initialRules={rules} client:load />
+  </div>
+</BaseLayout>

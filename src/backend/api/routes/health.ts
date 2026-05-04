@@ -1,98 +1,76 @@
-/**
- * @fileoverview Health monitoring API routes
- */
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 
-import { Hono } from 'hono';
-import { drizzle } from 'drizzle-orm/d1';
-import { desc, eq } from 'drizzle-orm';
-import { healthChecks } from '../../db/schema';
-import type { Bindings } from '../index';
 
-const healthRouter = new Hono<{ Bindings: Bindings }>();
 
-// GET /api/health
-healthRouter.get('/', async (c) => {
-  const db = drizzle(c.env.DB);
-  const startTime = Date.now();
+const healthRouter = new OpenAPIHono<{ Bindings: Env }>();
 
-  try {
-    // Test database connection
-    await db.select().from(healthChecks).limit(1);
-    const dbResponseTime = Date.now() - startTime;
-
-    // Get latest health check for each service
-    const allChecks = await db
-      .select()
-      .from(healthChecks)
-      .orderBy(desc(healthChecks.timestamp))
-      .limit(100);
-
-    const latestChecks = allChecks.reduce((acc, check) => {
-      if (!acc[check.serviceName]) {
-        acc[check.serviceName] = check;
-      }
-      return acc;
-    }, {} as Record<string, typeof allChecks[0]>);
-
-    // Determine overall status
-    const statuses = Object.values(latestChecks).map((c) => c.status);
-    let overallStatus = 'healthy';
-
-    if (statuses.includes('down')) {
-      overallStatus = 'down';
-    } else if (statuses.includes('degraded')) {
-      overallStatus = 'degraded';
-    }
-
-    // Record this health check
-    await db.insert(healthChecks).values({
-      serviceName: 'api',
-      status: 'healthy',
-      responseTime: dbResponseTime,
-      timestamp: new Date(),
-    });
-
-    return c.json({
-      status: overallStatus,
-      timestamp: new Date().toISOString(),
-      services: latestChecks,
-      responseTime: Date.now() - startTime,
-    });
-  } catch (error) {
-    console.error('Health check error:', error);
-    return c.json(
-      {
-        status: 'down',
-        timestamp: new Date().toISOString(),
-        error: 'Health check failed',
-      },
-      503
-    );
-  }
+const HealthSchema = z.object({
+  status: z.string(),
+  modules: z.array(
+    z.object({
+      module: z.string(),
+      status: z.string(),
+      latency_ms: z.number(),
+      timestamp: z.string(),
+    }),
+  ),
 });
 
-// GET /api/health/history
-healthRouter.get('/history', async (c) => {
-  const db = drizzle(c.env.DB);
-  const service = c.req.query('service');
-  const limit = parseInt(c.req.query('limit') || '100');
+const getHealthRoute = createRoute({
+  method: "get",
+  path: "/",
+  summary: "System health check",
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: HealthSchema,
+        },
+      },
+      description: "System is healthy",
+    },
+  },
+});
 
+healthRouter.openapi(getHealthRoute, async (c) => {
+  const env = c.env;
+  const modules = [];
+
+  // Check D1
+  const d1Start = Date.now();
+  let d1Status = "Healthy";
   try {
-    let query = db.select().from(healthChecks);
-
-    if (service) {
-      query = query.where(eq(healthChecks.serviceName, service));
-    }
-
-    const history = await query
-      .orderBy(desc(healthChecks.timestamp))
-      .limit(limit);
-
-    return c.json({ history });
-  } catch (error) {
-    console.error('Error fetching health history:', error);
-    return c.json({ error: 'Failed to fetch health history' }, 500);
+    await env.DB.prepare("SELECT 1").run();
+  } catch {
+    d1Status = "Unhealthy";
   }
+  modules.push({
+    module: "D1 Database",
+    status: d1Status,
+    latency_ms: Date.now() - d1Start,
+    timestamp: new Date().toISOString(),
+  });
+
+  // Check AI
+  const aiStart = Date.now();
+  let aiStatus = "Healthy";
+  try {
+    // A simple fast call
+    await env.AI.run("@cf/baai/bge-base-en-v1.5", { text: ["test"] });
+  } catch {
+    aiStatus = "Unhealthy";
+  }
+  modules.push({
+    module: "Workers AI",
+    status: aiStatus,
+    latency_ms: Date.now() - aiStart,
+    timestamp: new Date().toISOString(),
+  });
+
+  return c.json({
+    status: "ok",
+    modules,
+  });
 });
 
 export { healthRouter };

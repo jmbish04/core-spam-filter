@@ -1,0 +1,76 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/lib/config";
+---
+
+<BaseLayout
+  title={`Documentation | ${siteConfig.name}`}
+  description={siteConfig.description}
+>
+  <div class="container py-8 space-y-8 max-w-4xl">
+    <h1 class="text-3xl font-bold">Documentation</h1>
+
+    <div class="space-y-4">
+      <h2 class="text-2xl font-semibold border-b pb-2">Database Schema</h2>
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-xl font-medium">filter_rules</h3>
+          <p class="text-muted-foreground mt-1 mb-2">Stores configurations for routing emails.</p>
+          <pre class="bg-muted p-4 rounded-lg overflow-x-auto text-sm"><code>id (PK)
+rule_type ('keyword' | 'domain' | 'email')
+classification ('spam' | 'safe')
+value (string)
+created_at</code></pre>
+        </div>
+        <div>
+          <h3 class="text-xl font-medium">emails_log</h3>
+          <p class="text-muted-foreground mt-1 mb-2">Stores logs of analyzed emails and their AI classification.</p>
+          <pre class="bg-muted p-4 rounded-lg overflow-x-auto text-sm"><code>id (PK, string)
+message_id (string)
+sender, recipient, cc, bcc, subject, body_snippet
+is_spam, is_high_alert (boolean)
+spam_score (int)
+rationale (text)
+triggered_rules (json)
+analyzed_at</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h2 class="text-2xl font-semibold border-b pb-2">API Specifications</h2>
+      <p>The system exposes standard OpenAPI specs. Check the header links for Interactive UI.</p>
+      <div>
+        <h3 class="text-xl font-medium">POST /api/emails/analyze</h3>
+        <p class="text-muted-foreground mt-1 mb-2">Requires payload:</p>
+        <pre class="bg-muted p-4 rounded-lg overflow-x-auto text-sm"><code>&#123;
+  "message_id": "optional-id",
+  "sender": "sender@example.com",
+  "recipient": "me@example.com",
+  "subject": "Email Subject",
+  "body": "Email body content"
+&#125;</code></pre>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h2 class="text-2xl font-semibold border-b pb-2">Agent Prompts</h2>
+      <div class="space-y-2">
+        <h3 class="text-xl font-medium">System Prompt</h3>
+        <pre class="bg-muted p-4 rounded-lg overflow-x-auto text-sm whitespace-pre-wrap"><code>You are a core spam filter and triage system. Analyze the provided email and rules.
+Determine if the email is spam, high_alert, etc. Give scores and rationale.
+Return ONLY valid JSON matching this schema:
+&#123;
+  "spam": boolean,
+  "not_spam": boolean,
+  "high_alert": boolean,
+  "likelihood_score_spam": number,
+  "likelihood_score_not_spam": number,
+  "rationale_spam": string,
+  "rationale_not_spam": string,
+  "triggered_configurations": string[]
+&#125;</code></pre>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

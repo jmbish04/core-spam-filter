@@ -17,19 +17,20 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  name: "Astro shadcn/ui template",
-  description: "The template helps you build apps with Astro, Tailwind CSS, and shadcn/ui.",
-  url: "https://astro-shadcn-ui-template.vercel.app",
+  name: "Core Spam Filter",
+  description: "Core Email Spam Filter & Triage System",
+  url: "https://localhost:4321",
   author: {
-    name: "AREA44",
-    url: "https://github.com/area44",
+    name: "Jules",
+    url: "https://github.com",
   },
   links: {
-    github: "https://github.com/area44/astro-shadcn-ui-template",
+    github: "https://github.com",
   },
   navItems: [
-    { href: "https://astro.build", label: "Astro", external: true },
-    { href: "https://tailwindcss.com", label: "Tailwind CSS", external: true },
-    { href: "https://ui.shadcn.com", label: "shadcn/ui", external: true },
+    { href: "/", label: "Dashboard", external: false },
+    { href: "/config", label: "Config", external: false },
+    { href: "/docs", label: "Docs", external: false },
+    { href: "/health", label: "Health", external: false },
   ],
 };

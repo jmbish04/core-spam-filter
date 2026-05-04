@@ -11,6 +11,8 @@
     "**/.next",
     "**/.astro",
     "**/.netlify",
+    "playwright-report",
+    "appscript",
   ],
   "sortImports": {
     "groups": [
@@ -22,10 +24,5 @@
       ["value-parent", "value-sibling", "value-index"],
       "unknown",
     ],
-  },
-  "sortTailwindcss": {
-    "stylesheet": "./src/styles/global.css",
-    "attributes": ["class", "className"],
-    "functions": ["clsx", "cn", "cva", "tv"],
   },
 }

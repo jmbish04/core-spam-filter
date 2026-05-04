@@ -1,21 +1,26 @@
-# build output
+.DS_Store
 dist/
-# generated types
+dist-ssr/
+node_modules/
 .astro/
 
-# dependencies
-node_modules/
+# Secrets
+.env
+.env.*
 
-# logs
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
-.DS_Store
+# Cloudflare
+.wrangler/
+wrangler_deploy.log
+server.log

@@ -1,0 +1,10 @@
+{
+  "scriptId": "YOUR_APPS_SCRIPT_ID",
+  "rootDir": "appscript",
+  "filePushOrder": [
+    "appscript/appsscript.json",
+    "appscript/Utils.js",
+    "appscript/Code.js",
+    "appscript/Addon.js"
+  ]
+}

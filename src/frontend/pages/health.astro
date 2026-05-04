@@ -1,0 +1,18 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { siteConfig } from "@/lib/config";
+import { HealthDashboard } from "@/components/HealthDashboard";
+---
+
+<BaseLayout
+  title={`Health | ${siteConfig.name}`}
+  description={siteConfig.description}
+>
+  <div class="container py-8 space-y-8 max-w-4xl">
+    <div class="flex items-center space-x-2">
+      <div class="h-3 w-3 rounded-full bg-green-500 animate-pulse"></div>
+      <h1 class="text-3xl font-bold">Health Dashboard</h1>
+    </div>
+    <HealthDashboard client:load />
+  </div>
+</BaseLayout>
