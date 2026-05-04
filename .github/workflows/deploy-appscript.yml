@@ -28,9 +28,16 @@ jobs:
         run: |
           echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
 
-      - name: Create .clasp.json
+      - name: Deploy to 126COLBY Project
         run: |
-          echo '{ "scriptId": "${{ secrets.APPS_SCRIPT_ID }}", "rootDir": "appscript" }' > .clasp.json
+          # Replace the placeholder with the actual secret ID
+          sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}/g' .clasp.json
+          clasp push --force
+          # Revert the file back to its original state from the repository
+          git checkout .clasp.json
 
-      - name: Push to Google Apps Script
-        run: clasp push --force
+      - name: Deploy to GMAIL Project
+        run: |
+          # Replace the placeholder with the second secret ID
+          sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}/g' .clasp.json
+          clasp push --force
