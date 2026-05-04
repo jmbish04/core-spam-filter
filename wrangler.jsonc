@@ -35,6 +35,13 @@
       "remote": true
     },
   ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSIONS",
+      "id": "ca4dee69a316422b98395a5b4c87b0a9",
+	  "remote": true
+	}
+  ],
   // wrangler vectorize create core-spam-filter --preset @cf/baai/bge-large-en-v1.5
   "vectorize": [
     {
