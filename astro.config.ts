@@ -12,9 +12,9 @@ export default defineConfig({
   site,
   srcDir: "./src/frontend",
   base,
-  output: "server",
+  output: "static",
   adapter: cloudflare({
-    imageService: "cloudflare",
+    imageService: "passthrough",
     platformProxy: {
       enabled: true,
     },
