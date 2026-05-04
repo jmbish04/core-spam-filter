@@ -41,14 +41,14 @@ function getWorkerSecret_() {
  * @private
  */
 function analyzeEmail_(payload) {
-  var url = getWorkerUrl_() + "/api/emails/analyze";
+  var url = `${getWorkerUrl_()}/api/emails/analyze`;
   var secret = getWorkerSecret_();
 
   var options = {
     method: "post",
     contentType: "application/json",
     headers: {
-      Authorization: "Bearer " + secret,
+      Authorization: `Bearer ${secret}`,
     },
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
@@ -144,7 +144,7 @@ function log_(functionName, genericError, fullError) {
         function_name: functionName,
         error_summary: genericError,
         full_error: fullError,
-        timestamp: new Date().toISOString(),
+        timestamp: getD1Timestamp_(),
       }),
       muteHttpExceptions: true,
     };
@@ -180,7 +180,7 @@ function getD1Timestamp_() {
  * * @returns {string} YYYY-MM-DDTHH:MM:SS.SSSZ in UTC
  * @private
  */
-function getISO8601Timestamp() {
+function getISO8601Timestamp_() {
   // Returns format: YYYY-MM-DDTHH:MM:SS.SSSZ in UTC
   return new Date().toISOString();
 }
