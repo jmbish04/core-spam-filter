@@ -38,23 +38,23 @@ jobs:
         run: |
           echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
 
-      - name: Deploy to both environments
+      - name: Deploy to environments
         env:
           APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
           APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
         run: |
           chmod +x scripts/deploy-appscript.sh
           bash scripts/deploy-appscript.sh
-#       - name: Deploy to 126COLBY Project
-#         run: |
-#           # Replace the placeholder with the actual secret ID
-#           sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}/g' .clasp.json
-#           clasp push --force
-#           # Revert the file back to its original state from the repository
-#           git checkout .clasp.json
-
-#       - name: Deploy to GMAIL Project
-#         run: |
-#           # Replace the placeholder with the second secret ID
-#           sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}/g' .clasp.json
-#           clasp push --force
+          
+          # Print to the GitHub Actions Console Log
+          echo "=================================================="
+          echo "🚀 APPS SCRIPT EDITOR URLs"
+          echo "=================================================="
+          echo "126Colby Project: https://script.google.com/d/$APPSCRIPT_PROJECT_ID_126COLBY/edit"
+          echo "Gmail Project:    https://script.google.com/d/$APPSCRIPT_PROJECT_ID_GMAIL/edit"
+          echo "=================================================="
+          
+          # Append to the GitHub Actions Workflow Summary (Clickable Links on the run page)
+          echo "### 🚀 Apps Script Deployments" >> $GITHUB_STEP_SUMMARY
+          echo "- **126Colby Project**: [Open in Editor](https://script.google.com/d/$APPSCRIPT_PROJECT_ID_126COLBY/edit)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Gmail Project**: [Open in Editor](https://script.google.com/d/$APPSCRIPT_PROJECT_ID_GMAIL/edit)" >> $GITHUB_STEP_SUMMARY
