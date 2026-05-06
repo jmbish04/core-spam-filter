@@ -12,10 +12,16 @@ fi
 
 GMAIL_SCRIPT_ID="${APPSCRIPT_PROJECT_ID_GMAIL}"
 COLBY_SCRIPT_ID="${APPSCRIPT_PROJECT_ID_126COLBY}"
+TARGET="${TARGET_PROJECT:-both}"
 
 if [ -z "$GMAIL_SCRIPT_ID" ] || [ -z "$COLBY_SCRIPT_ID" ]; then
   echo "Error: Both APPSCRIPT_PROJECT_ID_GMAIL and APPSCRIPT_PROJECT_ID_126COLBY environment variables must be populated."
   exit 1
+fi
+
+# Initialize the Step Summary Header for clickable links in the GitHub UI
+if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+  echo "### 🚀 Apps Script Deployments" >> "$GITHUB_STEP_SUMMARY"
 fi
 
 deploy_to_target() {
@@ -39,20 +45,30 @@ EOF
   cd ..
 
   echo "Successfully deployed to $env_name"
-  echo "Editor URL: https://script.google.com/d/$script_id/edit"
-  echo "---"
+  echo "=================================================="
+  echo "🚀 APPS SCRIPT EDITOR URL: $env_name"
+  echo "https://script.google.com/d/$script_id/edit"
+  echo "=================================================="
+  
+  # Append directly to the GitHub Step Summary to create a hyperlink widget in the UI
+  if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+    echo "- **$env_name**: [Open in Editor](https://script.google.com/d/$script_id/edit)" >> "$GITHUB_STEP_SUMMARY"
+  fi
 }
 
 echo "========================================"
-echo "Google Apps Script Dual Deployment"
+echo "Google Apps Script Deployment"
+echo "Target: $TARGET"
 echo "========================================"
 echo ""
 
-# Deploy to Gmail account
-deploy_to_target "$GMAIL_SCRIPT_ID" "Gmail Account"
+if [ "$TARGET" = "gmail" ] || [ "$TARGET" = "both" ]; then
+  deploy_to_target "$GMAIL_SCRIPT_ID" "Gmail Project"
+fi
 
-# Deploy to Colby workspace account
-deploy_to_target "$COLBY_SCRIPT_ID" "126colby.com Workspace"
+if [ "$TARGET" = "126colby" ] || [ "$TARGET" = "both" ]; then
+  deploy_to_target "$COLBY_SCRIPT_ID" "126Colby Project"
+fi
 
 echo "========================================"
 echo "All deployments completed successfully!"
