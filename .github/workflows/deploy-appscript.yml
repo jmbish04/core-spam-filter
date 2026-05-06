@@ -40,8 +40,8 @@ jobs:
 
       - name: Deploy to both environments
         env:
-          GMAIL_SCRIPT_ID: ${{ secrets.GMAIL_SCRIPT_ID }}
-          COLBY_SCRIPT_ID: ${{ secrets.COLBY_SCRIPT_ID }}
+          APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
+          APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
         run: |
           chmod +x scripts/deploy-appscript.sh
           bash scripts/deploy-appscript.sh
