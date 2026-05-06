@@ -19,14 +19,10 @@ if [ -z "$GMAIL_SCRIPT_ID" ] || [ -z "$COLBY_SCRIPT_ID" ]; then
   exit 1
 fi
 
-# Initialize the Step Summary Header for clickable links in the GitHub UI
-if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-  echo "### 🚀 Apps Script Deployments" >> "$GITHUB_STEP_SUMMARY"
-fi
-
 deploy_to_target() {
   local script_id=$1
   local env_name=$2
+  local target_key=$3
 
   echo "Starting deployment to $env_name..."
 
@@ -45,14 +41,12 @@ EOF
   cd ..
 
   echo "Successfully deployed to $env_name"
-  echo "=================================================="
-  echo "🚀 APPS SCRIPT EDITOR URL: $env_name"
-  echo "https://script.google.com/d/$script_id/edit"
-  echo "=================================================="
+  echo "---"
   
-  # Append directly to the GitHub Step Summary to create a hyperlink widget in the UI
-  if [ -n "$GITHUB_STEP_SUMMARY" ]; then
-    echo "- **$env_name**: [Open in Editor](https://script.google.com/d/$script_id/edit)" >> "$GITHUB_STEP_SUMMARY"
+  # Export the outputs back to GitHub Actions
+  if [ -n "$GITHUB_OUTPUT" ]; then
+    echo "url_${target_key}=https://script.google.com/d/${script_id}/edit" >> "$GITHUB_OUTPUT"
+    echo "deployed_${target_key}=true" >> "$GITHUB_OUTPUT"
   fi
 }
 
@@ -63,11 +57,11 @@ echo "========================================"
 echo ""
 
 if [ "$TARGET" = "gmail" ] || [ "$TARGET" = "both" ]; then
-  deploy_to_target "$GMAIL_SCRIPT_ID" "Gmail Project"
+  deploy_to_target "$GMAIL_SCRIPT_ID" "Gmail Project" "gmail"
 fi
 
 if [ "$TARGET" = "126colby" ] || [ "$TARGET" = "both" ]; then
-  deploy_to_target "$COLBY_SCRIPT_ID" "126Colby Project"
+  deploy_to_target "$COLBY_SCRIPT_ID" "126Colby Project" "126colby"
 fi
 
 echo "========================================"
