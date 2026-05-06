@@ -38,23 +38,38 @@ jobs:
         run: |
           echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
 
-      - name: Deploy to environments
+      - name: Execute Deployment Script
+        id: deploy_script
         env:
           APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
           APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
+          TARGET_PROJECT: ${{ github.event.inputs.target_project || 'both' }}
         run: |
           chmod +x scripts/deploy-appscript.sh
           bash scripts/deploy-appscript.sh
-          
-          # Print to the GitHub Actions Console Log
+
+      - name: Output Deployment URLs
+        run: |
           echo "=================================================="
           echo "🚀 APPS SCRIPT EDITOR URLs"
           echo "=================================================="
-          echo "126Colby Project: https://script.google.com/d/$APPSCRIPT_PROJECT_ID_126COLBY/edit"
-          echo "Gmail Project:    https://script.google.com/d/$APPSCRIPT_PROJECT_ID_GMAIL/edit"
-          echo "=================================================="
           
-          # Append to the GitHub Actions Workflow Summary (Clickable Links on the run page)
-          echo "### 🚀 Apps Script Deployments" >> $GITHUB_STEP_SUMMARY
-          echo "- **126Colby Project**: [Open in Editor](https://script.google.com/d/$APPSCRIPT_PROJECT_ID_126COLBY/edit)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Gmail Project**: [Open in Editor](https://script.google.com/d/$APPSCRIPT_PROJECT_ID_GMAIL/edit)" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+             echo "### 🚀 Apps Script Deployments" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ steps.deploy_script.outputs.deployed_126colby }}" == "true" ]; then
+            echo "126Colby Project: ${{ steps.deploy_script.outputs.url_126colby }}"
+            if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+              echo "- **126Colby Project**: [Open in Editor](${{ steps.deploy_script.outputs.url_126colby }})" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          if [ "${{ steps.deploy_script.outputs.deployed_gmail }}" == "true" ]; then
+            echo "Gmail Project:    ${{ steps.deploy_script.outputs.url_gmail }}"
+            if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+              echo "- **Gmail Project**: [Open in Editor](${{ steps.deploy_script.outputs.url_gmail }})" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "=================================================="
