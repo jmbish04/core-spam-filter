@@ -10,8 +10,8 @@ then
     exit 1
 fi
 
-GMAIL_SCRIPT_ID="${GMAIL_SCRIPT_ID}"
-COLBY_SCRIPT_ID="${COLBY_SCRIPT_ID}"
+GMAIL_SCRIPT_ID="${APPSCRIPT_PROJECT_ID_GMAIL}"
+COLBY_SCRIPT_ID="${APPSCRIPT_PROJECT_ID_126COLBY}"
 
 if [ -z "$GMAIL_SCRIPT_ID" ] || [ -z "$COLBY_SCRIPT_ID" ]; then
   echo "Error: Both GMAIL_SCRIPT_ID and COLBY_SCRIPT_ID environment variables must be populated."
