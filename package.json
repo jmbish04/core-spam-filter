@@ -31,6 +31,7 @@
     "migrate:remote": "pnpm run db:generate && npx wrangler d1 migrations apply DB --remote",
     "deploy": "pnpm run build && cp .assetsignore dist/ && npx wrangler deploy",
     "deploy:tail": "npx wrangler tail",
+    "deploy:appscript": "bash scripts/deploy-appscript.sh",
     "cf-typegen": "wrangler types",
     "test": "playwright test"
   },

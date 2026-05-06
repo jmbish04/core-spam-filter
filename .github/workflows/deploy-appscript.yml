@@ -38,16 +38,23 @@ jobs:
         run: |
           echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
 
-      - name: Deploy to 126COLBY Project
+      - name: Deploy to both environments
+        env:
+          GMAIL_SCRIPT_ID: ${{ secrets.GMAIL_SCRIPT_ID }}
+          COLBY_SCRIPT_ID: ${{ secrets.COLBY_SCRIPT_ID }}
         run: |
-          # Replace the placeholder with the actual secret ID
-          sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}/g' .clasp.json
-          clasp push --force
-          # Revert the file back to its original state from the repository
-          git checkout .clasp.json
+          chmod +x scripts/deploy-appscript.sh
+          bash scripts/deploy-appscript.sh
+#       - name: Deploy to 126COLBY Project
+#         run: |
+#           # Replace the placeholder with the actual secret ID
+#           sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}/g' .clasp.json
+#           clasp push --force
+#           # Revert the file back to its original state from the repository
+#           git checkout .clasp.json
 
-      - name: Deploy to GMAIL Project
-        run: |
-          # Replace the placeholder with the second secret ID
-          sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}/g' .clasp.json
-          clasp push --force
+#       - name: Deploy to GMAIL Project
+#         run: |
+#           # Replace the placeholder with the second secret ID
+#           sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}/g' .clasp.json
+#           clasp push --force
