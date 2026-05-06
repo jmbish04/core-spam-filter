@@ -7,6 +7,16 @@ on:
     paths:
       - 'appscript/**'
   workflow_dispatch:
+      inputs:
+        target_project:
+          description: 'Which project to deploy to'
+          required: true
+          type: choice
+          default: 'both'
+          options:
+            - both
+            - 126colby
+            - gmail
 
 jobs:
   deploy:
@@ -26,7 +36,7 @@ jobs:
 
       - name: Create ~/.clasprc.json
         run: |
-          echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
+          echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
 
       - name: Deploy to both environments
         env:
@@ -35,3 +45,16 @@ jobs:
         run: |
           chmod +x scripts/deploy-appscript.sh
           bash scripts/deploy-appscript.sh
+#       - name: Deploy to 126COLBY Project
+#         run: |
+#           # Replace the placeholder with the actual secret ID
+#           sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}/g' .clasp.json
+#           clasp push --force
+#           # Revert the file back to its original state from the repository
+#           git checkout .clasp.json
+
+#       - name: Deploy to GMAIL Project
+#         run: |
+#           # Replace the placeholder with the second secret ID
+#           sed -i 's/YOUR_APPS_SCRIPT_ID/${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}/g' .clasp.json
+#           clasp push --force

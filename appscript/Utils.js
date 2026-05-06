@@ -8,7 +8,7 @@
 
 /**
  * Retrieves the Worker URL from script properties.
- * * @returns {string|null} The configured Worker URL, or null if not set.
+ * @returns {string|null} The configured Worker URL, or null if not set.
  * @private
  */
 function getWorkerUrl_() {
@@ -18,7 +18,7 @@ function getWorkerUrl_() {
 
 /**
  * Retrieves the Worker API Key (secret) from script properties.
- * * @returns {string|null} The configured Worker API Key, or null if not set.
+ * @returns {string|null} The configured Worker API Key, or null if not set.
  * @private
  */
 function getWorkerSecret_() {
@@ -28,7 +28,7 @@ function getWorkerSecret_() {
 
 /**
  * Sends an email payload to the external Worker API for spam analysis.
- * * @param {Object} payload - An object containing email metadata and body content.
+ * @param {Object} payload - An object containing email metadata and body content.
  * @param {string} payload.message_id - The unique ID of the email message.
  * @param {string} payload.sender - The sender's email address.
  * @param {string} payload.recipient - The recipient's email address.
@@ -41,14 +41,14 @@ function getWorkerSecret_() {
  * @private
  */
 function analyzeEmail_(payload) {
-  var url = `${getWorkerUrl_()}/api/emails/analyze`;
+  var url = getWorkerUrl_() + "/api/emails/analyze";
   var secret = getWorkerSecret_();
 
   var options = {
     method: "post",
     contentType: "application/json",
     headers: {
-      Authorization: `Bearer ${secret}`,
+      Authorization: `Bearer ${secret}`
     },
     payload: JSON.stringify(payload),
     muteHttpExceptions: true,
@@ -62,7 +62,7 @@ function analyzeEmail_(payload) {
       log_(
         "analyzeEmail_",
         "API returned " + response.getResponseCode(),
-        response.getContentText(),
+        response.getContentText()
       );
       return null;
     }
@@ -74,7 +74,7 @@ function analyzeEmail_(payload) {
 
 /**
  * Retrieves an existing Gmail label by name, or creates it if it does not exist.
- * * @param {string} labelName - The name of the label to retrieve or create.
+ * @param {string} labelName - The name of the label to retrieve or create.
  * @returns {GoogleAppsScript.Gmail.GmailLabel} The requested Gmail label object.
  * @private
  */
@@ -89,7 +89,7 @@ function getOrCreateLabel_(labelName) {
 /**
  * Creates a time-based trigger to run the processRecentEmails_ function every hour.
  * Checks if the trigger already exists to prevent duplicates.
- * * @returns {void}
+ * @returns {void}
  * @private
  */
 function createTrigger_() {
@@ -107,7 +107,7 @@ function createTrigger_() {
 
 /**
  * Saves the external Worker URL and API Key to the script properties.
- * * @param {string} workerUrl - The base URL of the Cloudflare Worker.
+ * @param {string} workerUrl - The base URL of the Cloudflare Worker.
  * @param {string} workerApiKey - The authorization token for the Worker API.
  * @returns {void}
  * @private
@@ -121,7 +121,7 @@ function setConfig_(workerUrl, workerApiKey) {
 /**
  * Logs an error locally to the Apps Script logger and attempts to send the log 
  * to the configured external Worker API endpoint.
- * * @param {string} functionName - The name of the function where the error occurred.
+ * @param {string} functionName - The name of the function where the error occurred.
  * @param {string} genericError - A short summary of the error.
  * @param {string} fullError - The full error stack trace or detailed string.
  * @returns {void}
@@ -138,7 +138,7 @@ function log_(functionName, genericError, fullError) {
       method: "post",
       contentType: "application/json",
       headers: {
-        Authorization: `Bearer ${secret}`,
+        Authorization: `Bearer ${secret}`
       },
       payload: JSON.stringify({
         function_name: functionName,
@@ -158,7 +158,7 @@ function log_(functionName, genericError, fullError) {
 
 /**
  * Retrieves the email address of the user currently executing the script.
- * * @returns {string} The email address of the effective user.
+ * @returns {string} The email address of the effective user.
  * @private
  */
 function getCurrentAccount_(){
@@ -167,7 +167,7 @@ function getCurrentAccount_(){
 
 /**
  * Retrieves the D1 timestamp as 'YYYY-MM-DD HH:MM:SS in UTC'.
- * * @returns {string}  YYYY-MM-DD HH:MM:SS in UTC
+ * @returns {string}  YYYY-MM-DD HH:MM:SS in UTC
  * @private
  */
 function getD1Timestamp_() {
@@ -177,11 +177,10 @@ function getD1Timestamp_() {
 
 /**
  * Retrieves the ISO8601 timestamp as 'YYYY-MM-DDTHH:MM:SS.SSSZ in UTC'.
- * * @returns {string} YYYY-MM-DDTHH:MM:SS.SSSZ in UTC
+ * @returns {string} YYYY-MM-DDTHH:MM:SS.SSSZ in UTC
  * @private
  */
 function getISO8601Timestamp_() {
   // Returns format: YYYY-MM-DDTHH:MM:SS.SSSZ in UTC
   return new Date().toISOString();
 }
-

@@ -7,18 +7,14 @@
  * appropriately labeling the threads in Gmail.
  */
 
-
-/**
- * The name of the Gmail label applied to messages identified as spam.
- * @constant {string}
- */
-const SPAM_LABEL_NAME = "AI_Spam";
-
 /**
  * Initializes the Script App configuration by setting the default Worker URL
  * and creating the hourly processing trigger.
  * * @returns {void}
  */
+const SPAM_LABEL_NAME = "AI_Spam";
+
+
 function configureScriptApp(){
   setConfig_('https://core-spam-filter.hacolby.workers.dev', '');
   createTrigger_();
@@ -61,3 +57,5 @@ function processRecentEmails() {
     }
   }
 }
+
+
