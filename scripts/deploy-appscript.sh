@@ -14,7 +14,7 @@ GMAIL_SCRIPT_ID="${APPSCRIPT_PROJECT_ID_GMAIL}"
 COLBY_SCRIPT_ID="${APPSCRIPT_PROJECT_ID_126COLBY}"
 
 if [ -z "$GMAIL_SCRIPT_ID" ] || [ -z "$COLBY_SCRIPT_ID" ]; then
-  echo "Error: Both GMAIL_SCRIPT_ID and COLBY_SCRIPT_ID environment variables must be populated."
+  echo "Error: Both APPSCRIPT_PROJECT_ID_GMAIL and APPSCRIPT_PROJECT_ID_126COLBY environment variables must be populated."
   exit 1
 fi
 
@@ -22,7 +22,7 @@ deploy_to_target() {
   local script_id=$1
   local env_name=$2
 
-  echo "Starting deployment to $env_name ($script_id)..."
+  echo "Starting deployment to $env_name..."
 
   cat > appscript/.clasp.json <<EOF
 {
@@ -38,7 +38,8 @@ EOF
   npx clasp push --force
   cd ..
 
-  echo "Successfully deployed to $env_name ($script_id)"
+  echo "Successfully deployed to $env_name"
+  echo "Editor URL: https://script.google.com/d/$script_id/edit"
   echo "---"
 }
 
