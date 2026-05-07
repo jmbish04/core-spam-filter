@@ -1,5 +1,5 @@
 {
-  "timeZone": "America/New_York",
+  "timeZone": "America/Los_Angeles",
   "dependencies": {},
   "exceptionLogging": "STACKDRIVER",
   "oauthScopes": [
@@ -9,7 +9,8 @@
     "https://www.googleapis.com/auth/gmail.addons.execute",
     "https://www.googleapis.com/auth/gmail.addons.current.message.readonly",
     "https://www.googleapis.com/auth/script.external_request",
-    "https://www.googleapis.com/auth/script.scriptapp"
+    "https://www.googleapis.com/auth/script.scriptapp",
+    "https://www.googleapis.com/auth/userinfo.email"
   ],
   "runtimeVersion": "V8",
   "addOns": {
