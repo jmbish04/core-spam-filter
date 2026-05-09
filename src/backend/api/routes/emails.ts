@@ -24,6 +24,12 @@ const AnalyzeEmailResponseSchema = z.object({
   rationale_spam: z.string(),
   rationale_not_spam: z.string(),
   triggered_configurations: z.array(z.string()),
+  is_answerable: z.boolean(),
+  no_reply_needed: z.boolean(),
+  draft_reply: z.string(),
+  action_reasoning: z.string(),
+  applied_writing_style_id: z.string().nullable(),
+  applied_writing_style_name: z.string().nullable(),
 });
 
 const analyzeRoute = createRoute({

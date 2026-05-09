@@ -2,18 +2,22 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { siteConfig } from "@/lib/config";
 import { RulesConfig } from "@/components/RulesConfig";
+import { WritingStylesConfig } from "@/components/WritingStylesConfig";
 
 // Fetch rules from API
 const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:4321';
 let rules = [];
+let writingStyles = [];
 
 try {
-  const res = await fetch(`${API_URL}/api/rules`);
-  if (res.ok) {
-    rules = await res.json();
-  }
+  const [rulesRes, stylesRes] = await Promise.all([
+    fetch(`${API_URL}/api/rules`),
+    fetch(`${API_URL}/api/writing-styles`),
+  ]);
+  if (rulesRes.ok) rules = await rulesRes.json();
+  if (stylesRes.ok) writingStyles = await stylesRes.json();
 } catch (e) {
-  console.error("Error fetching rules", e);
+  console.error("Error fetching config data", e);
 }
 ---
 
@@ -23,6 +27,59 @@ try {
 >
   <div class="container py-8 space-y-8">
     <h1 class="text-3xl font-bold">Configuration</h1>
-    <RulesConfig initialRules={rules} client:load />
+
+    <!-- Tab nav -->
+    <div id="config-tabs" class="border-b flex gap-6">
+      <button
+        id="tab-rules"
+        class="tab-btn pb-2 text-sm font-medium border-b-2 border-primary"
+        data-tab="rules"
+      >
+        Filter Rules
+      </button>
+      <button
+        id="tab-styles"
+        class="tab-btn pb-2 text-sm font-medium border-b-2 border-transparent text-muted-foreground"
+        data-tab="styles"
+      >
+        Writing Styles
+      </button>
+    </div>
+
+    <!-- Tab panels -->
+    <div id="panel-rules">
+      <RulesConfig initialRules={rules} client:load />
+    </div>
+
+    <div id="panel-styles" class="hidden">
+      <WritingStylesConfig initialStyles={writingStyles} client:load />
+    </div>
   </div>
 </BaseLayout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".tab-btn");
+  const panels: Record<string, HTMLElement | null> = {
+    rules: document.getElementById("panel-rules"),
+    styles: document.getElementById("panel-styles"),
+  };
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tab ?? "rules";
+      // Show/hide panels
+      Object.entries(panels).forEach(([key, el]) => {
+        if (!el) return;
+        el.classList.toggle("hidden", key !== target);
+      });
+      // Update active tab style
+      buttons.forEach((b) => {
+        const isActive = b.dataset.tab === target;
+        b.classList.toggle("border-primary", isActive);
+        b.classList.toggle("border-transparent", !isActive);
+        b.classList.toggle("text-muted-foreground", !isActive);
+      });
+    });
+  });
+</script>
+

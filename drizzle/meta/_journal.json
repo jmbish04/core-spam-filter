@@ -15,6 +15,13 @@
       "when": 1777813549856,
       "tag": "0001_soft_zaladane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1778313397124,
+      "tag": "0002_puzzling_pandemic",
+      "breakpoints": true
     }
   ]
 }
