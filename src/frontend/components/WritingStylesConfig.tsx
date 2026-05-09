@@ -299,7 +299,16 @@ function StyleDialog({ open, onOpenChange, initialStyle, onSaved }: StyleDialogP
             is_enabled: isEnabled,
           }),
         });
-        onSaved({ ...initialStyle, name, description: description || null, style_prompt: stylePrompt, priority: Number(priority), is_enabled: isEnabled, conditions, updated_at: new Date().toISOString() });
+        onSaved({
+          ...initialStyle,
+          name,
+          description: description || null,
+          style_prompt: stylePrompt,
+          priority: Number(priority),
+          is_enabled: isEnabled,
+          conditions,
+          updated_at: new Date().toISOString(),
+        });
       } else {
         // Create new
         const res = await fetch("/api/writing-styles", {

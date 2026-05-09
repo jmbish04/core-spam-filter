@@ -58,21 +58,20 @@ const searchRoute = createRoute({
 gmailRouter.openapi(searchRoute, async (c) => {
   const payload = c.req.valid("json");
 
-  const appScriptUrl = (c.env as any).APPSCRIPT_WEBAPP_URL as string | undefined;
+  // Access optional env vars that may not be in the generated Env interface yet
+  const env = c.env as any;
+  const appScriptUrl: string | undefined = env.APPSCRIPT_WEBAPP_URL;
+
   if (!appScriptUrl) {
-    return c.json(
-      { messages: [], query: "", total: 0 },
-      200,
-    );
+    return c.json({ messages: [], query: "", total: 0 }, 200);
   }
 
   let appScriptSecret: string | undefined;
-  if ((c.env as any).APPSCRIPT_WEBHOOK_SECRET) {
+  if (env.APPSCRIPT_WEBHOOK_SECRET) {
     try {
-      appScriptSecret = await (c.env as any).APPSCRIPT_WEBHOOK_SECRET.get();
+      appScriptSecret = await env.APPSCRIPT_WEBHOOK_SECRET.get();
     } catch {
-      // not bound as secrets store – treat as plain string var
-      appScriptSecret = (c.env as any).APPSCRIPT_WEBHOOK_SECRET;
+      appScriptSecret = env.APPSCRIPT_WEBHOOK_SECRET as string | undefined;
     }
   }
 

@@ -124,7 +124,7 @@ async function callAIGateway(
     cfToken = undefined;
   }
 
-  const gatewayId = (env as any).AI_GATEWAY_ID as string ?? "default-gateway";
+  const gatewayId = ((env as any).AI_GATEWAY_ID as string | undefined) ?? "default-gateway";
 
   // ── Gemini via AI Gateway ───────────────────────────────────────────────────
   if (accountId && geminiKey) {

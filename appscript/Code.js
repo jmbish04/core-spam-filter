@@ -38,8 +38,7 @@ function doPost(e) {
   var expectedSecret = props.getProperty('APPSCRIPT_WEBHOOK_SECRET');
 
   if (expectedSecret) {
-    var authHeader = e.parameter.Authorization ||
-      (e.headers && e.headers['Authorization']) || '';
+    var authHeader = (e.headers && e.headers['Authorization']) || '';
     var providedToken = authHeader.replace(/^Bearer\s+/i, '');
     if (providedToken !== expectedSecret) {
       return ContentService
