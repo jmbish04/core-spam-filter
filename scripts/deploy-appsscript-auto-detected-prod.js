@@ -1,7 +1,6 @@
 /**
- * @fileoverview Programmatic Production Deployer (ESM Version)
- * @module scripts/deploy-prod
- * @description Orchestrates the final deployment to Google Apps Script.
+ * @fileoverview Programmatic Unified Production Deployer (ESM)
+ * @module scripts/deploy-appsscript-auto-detected-prod
  */
 
 import { execSync } from 'child_process';
@@ -9,12 +8,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Define __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Executes a shell command and returns the output string.
+ * Executes a shell command and returns the output.
  */
 function run(command, cwd = process.cwd()) {
   try {
@@ -25,54 +23,42 @@ function run(command, cwd = process.cwd()) {
     }).trim();
   } catch (e) {
     console.error(`❌ Execution failed: ${command}`);
-    return null; 
+    process.exit(1);
   }
 }
 
 /**
- * Deploys a specific project
+ * Deploys a specific Apps Script project and maintains ID stability.
  */
-function deployProject(name, scriptId, envDeployId) {
-  console.log(`\n🚀 Starting Deployment for: ${name}`);
-  
+function deployAppsScript(name, scriptId, envDeployId) {
+  console.log(`\n🚀 [Apps Script] Starting Deployment for: ${name}`);
   const appscriptDir = path.join(process.cwd(), 'appscript');
 
-  // 1. Ensure .clasp.json is correct for this project
   const claspConfig = { scriptId, rootDir: "." };
   fs.writeFileSync(path.join(appscriptDir, '.clasp.json'), JSON.stringify(claspConfig, null, 2));
-  
-  // 2. Sync changes
+
   console.log('📦 Syncing files with clasp push...');
   run('npx clasp push -f', appscriptDir);
 
-  // 3. Resolve Deployment ID
   let deployId = envDeployId;
-
   if (!deployId) {
     console.log('🔍 Detecting existing deployments...');
     const deploymentsOutput = run('npx clasp deployments', appscriptDir);
-    
     if (deploymentsOutput) {
       const lines = deploymentsOutput.split('\n');
-      // Look for a production tag or a web app deployment
       const prodLine = lines.find(l => l.includes('PROD_WEB_APP')) || lines.find(l => l.includes('web app'));
-      
       if (prodLine) {
         const match = prodLine.match(/- ([^\s@]+)/);
-        if (match) {
-          deployId = match[1];
-          console.log(`✅ Auto-detected Deployment ID: ${deployId}`);
-        }
+        if (match) deployId = match[1];
       }
     }
   }
 
-  // 4. Execute Update or New Deployment
   if (deployId) {
-    console.log(`⚡ Updating deployment: ${deployId}`);
+    console.log(`✅ Updating existing deployment: ${deployId}`);
     run(`npx clasp deploy -i ${deployId} -d "PROD_WEB_APP"`, appscriptDir);
   } else {
-    console.log('⚠️ No deployment found. Creating fresh production deployment...');
+    console.log('⚠️ Creating fresh production deployment...');
     run('npx clasp deploy -d "PROD_WEB_APP"', appscriptDir);
   }
 }
@@ -80,26 +66,28 @@ function deployProject(name, scriptId, envDeployId) {
 async function main() {
   const target = process.env.TARGET_PROJECT || 'both';
   
+  // 1. Deploy Apps Script projects (Stability phase)
   const projects = [
-    { 
-      key: 'gmail', 
-      name: 'Gmail', 
-      id: process.env.APPSCRIPT_PROJECT_ID_GMAIL, 
-      deployId: process.env.PROD_DEPLOYMENT_ID_GMAIL 
-    },
-    { 
-      key: '126colby', 
-      name: '126Colby', 
-      id: process.env.APPSCRIPT_PROJECT_ID_126COLBY, 
-      deployId: process.env.PROD_DEPLOYMENT_ID_126COLBY 
-    }
+    { key: 'gmail', name: 'Gmail', id: process.env.APPSCRIPT_PROJECT_ID_GMAIL, deployId: process.env.PROD_DEPLOYMENT_ID_GMAIL },
+    { key: '126colby', name: '126Colby', id: process.env.APPSCRIPT_PROJECT_ID_126COLBY, deployId: process.env.PROD_DEPLOYMENT_ID_126COLBY }
   ];
 
   for (const project of projects) {
     if ((target === 'both' || target === project.key) && project.id) {
-      deployProject(project.name, project.id, project.deployId);
+      deployAppsScript(project.name, project.id, project.deployId);
     }
   }
+
+  // 2. Build the Astro Frontend (Assets phase)
+  console.log('\n🏗️ [Cloudflare] Building Astro frontend...');
+  run('npm run build'); 
+
+  // 3. Deploy to Cloudflare (Worker phase)
+  console.log('\n☁️ [Cloudflare] Deploying Worker to production...');
+  // We use the base command to avoid environment mismatch errors
+  run('npx wrangler deploy');
+
+  console.log('\n🎉 ALL DEPLOYMENTS SUCCESSFUL');
 }
 
 main().catch(err => {
