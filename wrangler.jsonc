@@ -131,11 +131,6 @@
       "secret_name": "GEMINI_API_KEY"
     },
     {
-      "binding": "APPSCRIPT_WEBHOOK_SECRET",
-      "store_id": "8c42fa70938644e0a8a109744467375f",
-      "secret_name": "APPSCRIPT_WEBHOOK_SECRET"
-    },
-    {
       "binding": "CF_BROWSER_RENDER_TOKEN",
       "store_id": "8c42fa70938644e0a8a109744467375f",
       "secret_name": "CLOUDFLARE_BROWSER_RENDER_TOKEN"
