@@ -1,8 +1,8 @@
 function onHomepage(e) {
-  var card = CardService.newCardBuilder();
+  const card = CardService.newCardBuilder();
   card.setHeader(CardService.newCardHeader().setTitle("Core Spam Filter Settings"));
 
-  var sweepSection = CardService.newCardSection()
+  const sweepSection = CardService.newCardSection()
     .addWidget(CardService.newTextParagraph().setText("Sweep inbox for spam right now."))
     .addWidget(
       CardService.newTextButton()
@@ -10,19 +10,19 @@ function onHomepage(e) {
         .setOnClickAction(CardService.newAction().setFunctionName("runManualSweep_")),
     );
 
-  var configSection = CardService.newCardSection()
+  const configSection = CardService.newCardSection()
     .setHeader("Configuration")
     .addWidget(
       CardService.newTextInput()
         .setFieldName("workerUrl")
         .setTitle("Worker URL")
-        .setValue(getWorkerUrl() || ""),
+        .setValue(getWorkerUrl_() || ""),
     )
     .addWidget(
       CardService.newTextInput()
         .setFieldName("workerApiKey")
         .setTitle("Worker API Key")
-        .setValue(getWorkerSecret() || ""),
+        .setValue(getWorkerSecret_() || ""),
     )
     .addWidget(
       CardService.newTextButton()
@@ -36,12 +36,12 @@ function onHomepage(e) {
 }
 
 function onContextualMessage(e) {
-  var messageId = e.messageMetadata.messageId;
+  const messageId = e.messageMetadata.messageId;
 
-  var card = CardService.newCardBuilder();
+  const card = CardService.newCardBuilder();
   card.setHeader(CardService.newCardHeader().setTitle("Message Actions"));
 
-  var section = CardService.newCardSection()
+  const section = CardService.newCardSection()
     .addWidget(
       CardService.newTextButton()
         .setText("Add sender domain to Spam config")
@@ -92,8 +92,8 @@ function runManualSweep_(e) {
 }
 
 function saveConfig_(e) {
-  var workerUrl = e.formInput.workerUrl;
-  var workerApiKey = e.formInput.workerApiKey;
+  const workerUrl = e.formInput.workerUrl;
+  const workerApiKey = e.formInput.workerApiKey;
   setConfig_(workerUrl, workerApiKey);
   return CardService.newActionResponseBuilder()
     .setNotification(CardService.newNotification().setText("Configuration saved."))
@@ -101,11 +101,11 @@ function saveConfig_(e) {
 }
 
 function addDomainToSpamConfig_(e) {
-  var messageId = e.parameters.messageId;
-  var msg = GmailApp.getMessageById(messageId);
-  var sender = msg.getFrom();
+  const messageId = e.parameters.messageId;
+  const msg = GmailApp.getMessageById(messageId);
+  const sender = msg.getFrom();
 
-  var domainMatch = sender.match(/@([\w.-]+)/);
+  const domainMatch = sender.match(/@([\w.-]+)/);
   if (domainMatch && domainMatch[1]) {
     addRuleToWorker_("domain", "spam", domainMatch[1]);
     return CardService.newActionResponseBuilder()
@@ -120,12 +120,12 @@ function addDomainToSpamConfig_(e) {
 }
 
 function addSenderToSafeConfig_(e) {
-  var messageId = e.parameters.messageId;
-  var msg = GmailApp.getMessageById(messageId);
-  var sender = msg.getFrom();
+  const messageId = e.parameters.messageId;
+  const msg = GmailApp.getMessageById(messageId);
+  const sender = msg.getFrom();
 
-  var emailMatch = sender.match(/<([^>]+)>/);
-  var email = emailMatch ? emailMatch[1] : sender;
+  const emailMatch = sender.match(/<([^>]+)>/);
+  const email = emailMatch ? emailMatch[1] : sender;
 
   addRuleToWorker_("email", "safe", email);
   return CardService.newActionResponseBuilder()
@@ -134,10 +134,10 @@ function addSenderToSafeConfig_(e) {
 }
 
 function askAgent_(e) {
-  var messageId = e.parameters.messageId;
-  var question = e.formInput.agentQuestion;
-  var msg = GmailApp.getMessageById(messageId);
-  var payload = {
+  const messageId = e.parameters.messageId;
+  const question = e.formInput.agentQuestion;
+  const msg = GmailApp.getMessageById(messageId);
+  const payload = {
     message_id: messageId,
     sender: msg.getFrom(),
     recipient: msg.getTo(),
@@ -146,10 +146,10 @@ function askAgent_(e) {
     question: question,
   };
 
-  var url = getWorkerUrl() + "/api/emails/ask"; // New theoretical endpoint for custom agent Q&A
-  var secret = getWorkerSecret();
+  const url = `${getWorkerUrl_()}/api/emails/ask`; // New theoretical endpoint for custom agent Q&A
+  const secret = getWorkerSecret_();
 
-  var options = {
+  const options = {
     method: "post",
     contentType: "application/json",
     headers: {
@@ -160,9 +160,9 @@ function askAgent_(e) {
   };
 
   try {
-    var response = UrlFetchApp.fetch(url, options);
+    const response = UrlFetchApp.fetch(url, options);
     if (response.getResponseCode() === 200) {
-      var data = JSON.parse(response.getContentText());
+      const data = JSON.parse(response.getContentText());
       return CardService.newActionResponseBuilder()
         .setNotification(CardService.newNotification().setText(data.answer))
         .build();
@@ -183,16 +183,16 @@ function askAgent_(e) {
 }
 
 function addRuleToWorker_(ruleType, classification, value) {
-  var url = getWorkerUrl() + "/api/rules";
-  var secret = getWorkerSecret();
+  const url = `${getWorkerUrl_()}/api/rules`;
+  const secret = getWorkerSecret_();
 
-  var payload = {
+  const payload = {
     rule_type: ruleType,
     classification: classification,
     value: value,
   };
 
-  var options = {
+  const options = {
     method: "post",
     contentType: "application/json",
     headers: {
@@ -203,7 +203,7 @@ function addRuleToWorker_(ruleType, classification, value) {
   };
 
   try {
-    var res = UrlFetchApp.fetch(url, options);
+    const res = UrlFetchApp.fetch(url, options);
     if (res.getResponseCode() !== 201 && res.getResponseCode() !== 200) {
       log_(
         "addRuleToWorker_",
