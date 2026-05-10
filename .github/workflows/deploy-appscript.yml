@@ -1,0 +1,95 @@
+name: Production Deployment (Apps Script + Cloudflare)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'appscript/**'
+      - 'worker/**' # Assuming your Cloudflare code is here
+  workflow_dispatch:
+    inputs:
+      target_project:
+        description: 'Which GAS project to deploy'
+        required: true
+        type: choice
+        default: 'both'
+        options:
+          - both
+          - 126colby
+          - gmail
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # --- 1. ARCHIVE LOGIC (From your first snippet) ---
+      - name: Archive .txt files
+        run: |
+          mkdir -p src/archive
+          find src -type f -name "*.txt" -not -path "src/archive/*" | while read -r file; do
+            rel_path="${file#src/}"
+            target_dir="src/archive/$(dirname "$rel_path")"
+            mkdir -p "$target_dir"
+            mv "$file" "$target_dir/$(basename "$rel_path")"
+          done
+
+      - name: Commit and Push Archived Files
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: archive .txt files [skip ci]"
+            git push
+          fi
+
+      # --- 2. APPS SCRIPT DEPLOYMENT ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install clasp & Dependencies
+        run: |
+          npm install -g @google/clasp
+          npm install
+
+      - name: Provide Authentication (Python Setup)
+        run: python3 scripts/setup-clasp.py
+        env:
+          CLASPRC_JSON_RAW: ${{ secrets.CLASPRC_JSON }}
+
+      - name: Execute Apps Script Deployment
+        id: deploy_script
+        env:
+          APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
+          APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
+          # These IDs ensure the URL never changes
+          PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
+          PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
+          TARGET_PROJECT: ${{ github.event.inputs.target_project || 'both' }}
+        run: |
+          chmod +x scripts/deploy-appscript.sh
+          bash scripts/deploy-appscript.sh
+
+      # --- 3. CLOUDFLARE WORKER DEPLOYMENT ---
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # This ensures the worker is updated on every push to main
+          command: deploy --env production
+
+      - name: Output Summary
+        run: |
+          echo "### 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cloudflare**: Worker updated to latest production build." >> $GITHUB_STEP_SUMMARY
+          echo "- **Apps Script**: Pushed to existing Deployment IDs (URLs Stable)." >> $GITHUB_STEP_SUMMARY
