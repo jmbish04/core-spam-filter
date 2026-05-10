@@ -53,7 +53,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
 
       - name: Install clasp & Dependencies
         run: |
@@ -69,12 +69,12 @@ jobs:
         run: |
           echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json          
 
-      - name: Execute Apps Script Deployment
+      - name: Execute Deployment Script
         id: deploy_script
         env:
           APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
           APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
-          # These IDs ensure the URL never changes
+          # These ensure you don't get new URLs every time
           PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
           PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
           TARGET_PROJECT: ${{ github.event.inputs.target_project || 'both' }}
