@@ -1,6 +1,6 @@
 /**
  * @fileoverview Programmatic Unified Production Deployer (ESM)
- * @module scripts/deploy-appsscript-auto-detected-prod
+ * @module scripts/deploy-prod
  */
 
 import { execSync } from 'child_process';
@@ -22,31 +22,38 @@ function run(command, cwd = process.cwd()) {
       stdio: ['inherit', 'pipe', 'inherit'] 
     }).trim();
   } catch (e) {
-    console.error(`❌ Execution failed: ${command}`);
-    process.exit(1);
+    // Check specifically for the Google Domain error
+    if (e.stdout?.includes('Only users in the same domain')) {
+      console.error('\n❌ DOMAIN PERMISSION ERROR:');
+      console.error('The account in CLASPRC_JSON is not in the same domain as the script owner.');
+      console.error('Action Required: Share the Apps Script project with your deployer account or use a domain-authorized account.\n');
+    } else {
+      console.error(`❌ Execution failed: ${command}`);
+    }
+    return null; 
   }
 }
 
 /**
- * Deploys a specific Apps Script project and maintains ID stability.
+ * Deploys an Apps Script project with stable ID detection.
  */
 function deployAppsScript(name, scriptId, envDeployId) {
-  console.log(`\n🚀 [Apps Script] Starting Deployment for: ${name}`);
+  console.log(`\n🚀 [Apps Script] Deploying: ${name}`);
   const appscriptDir = path.join(process.cwd(), 'appscript');
 
+  // Sync .clasp.json
   const claspConfig = { scriptId, rootDir: "." };
   fs.writeFileSync(path.join(appscriptDir, '.clasp.json'), JSON.stringify(claspConfig, null, 2));
 
-  console.log('📦 Syncing files with clasp push...');
+  console.log('📦 Syncing code...');
   run('npx clasp push -f', appscriptDir);
 
   let deployId = envDeployId;
   if (!deployId) {
-    console.log('🔍 Detecting existing deployments...');
+    console.log('🔍 Detecting existing production deployments...');
     const deploymentsOutput = run('npx clasp deployments', appscriptDir);
     if (deploymentsOutput) {
-      const lines = deploymentsOutput.split('\n');
-      const prodLine = lines.find(l => l.includes('PROD_WEB_APP')) || lines.find(l => l.includes('web app'));
+      const prodLine = deploymentsOutput.split('\n').find(l => l.includes('PROD_WEB_APP') || l.includes('web app'));
       if (prodLine) {
         const match = prodLine.match(/- ([^\s@]+)/);
         if (match) deployId = match[1];
@@ -55,10 +62,10 @@ function deployAppsScript(name, scriptId, envDeployId) {
   }
 
   if (deployId) {
-    console.log(`✅ Updating existing deployment: ${deployId}`);
+    console.log(`⚡ Updating deployment: ${deployId}`);
     run(`npx clasp deploy -i ${deployId} -d "PROD_WEB_APP"`, appscriptDir);
   } else {
-    console.log('⚠️ Creating fresh production deployment...');
+    console.log('⚠️ Creating new production deployment...');
     run('npx clasp deploy -d "PROD_WEB_APP"', appscriptDir);
   }
 }
@@ -66,7 +73,11 @@ function deployAppsScript(name, scriptId, envDeployId) {
 async function main() {
   const target = process.env.TARGET_PROJECT || 'both';
   
-  // 1. Deploy Apps Script projects (Stability phase)
+  // 1. Build the Astro Frontend (Ensures 'dist' exists for Cloudflare)
+  console.log('\n🏗️ [Build] Generating assets...');
+  run('npm run build');
+
+  // 2. Multi-Target Apps Script Deployment
   const projects = [
     { key: 'gmail', name: 'Gmail', id: process.env.APPSCRIPT_PROJECT_ID_GMAIL, deployId: process.env.PROD_DEPLOYMENT_ID_GMAIL },
     { key: '126colby', name: '126Colby', id: process.env.APPSCRIPT_PROJECT_ID_126COLBY, deployId: process.env.PROD_DEPLOYMENT_ID_126COLBY }
@@ -78,16 +89,12 @@ async function main() {
     }
   }
 
-  // 2. Build the Astro Frontend (Assets phase)
-  console.log('\n🏗️ [Cloudflare] Building Astro frontend...');
-  run('npm run build'); 
-
-  // 3. Deploy to Cloudflare (Worker phase)
-  console.log('\n☁️ [Cloudflare] Deploying Worker to production...');
-  // We use the base command to avoid environment mismatch errors
+  // 3. Cloudflare Deployment
+  console.log('\n☁️ [Cloudflare] Deploying Worker...');
+  // Ensure we use the local wrangler.jsonc and the generated dist folder
   run('npx wrangler deploy');
 
-  console.log('\n🎉 ALL DEPLOYMENTS SUCCESSFUL');
+  console.log('\n🎉 Deployment Cycle Finished.');
 }
 
 main().catch(err => {
