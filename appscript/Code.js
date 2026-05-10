@@ -72,6 +72,16 @@ function doPost(e) {
 // ── Gmail search helper ───────────────────────────────────────────────────────
 
 /**
+ * Escapes special characters in Gmail search query values to prevent injection.
+ * @param {string} val - The value to escape
+ * @returns {string} - Escaped value safe for Gmail search
+ */
+function escapeGmailSearchValue_(val) {
+  // Escape double quotes and backslashes
+  return val.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+/**
  * Converts an array of writing-style conditions into a Gmail search query
  * and returns the first maxResults matching messages' metadata.
  *
@@ -87,42 +97,44 @@ function searchGmailByConditions_(conditions, maxResults) {
     var field = cond.condition_field;
     var op    = cond.condition_operator;
     var val   = cond.condition_value;
+    var escapedVal = escapeGmailSearchValue_(val);
 
     switch (field) {
       case 'from_address':
-        if (op === 'equals')     queryParts.push('from:' + val);
-        else if (op === 'contains') queryParts.push('from:' + val);
-        else if (op === 'not_contains') queryParts.push('-from:' + val);
+        if (op === 'equals')     queryParts.push('from:"' + escapedVal + '"');
+        else if (op === 'contains') queryParts.push('from:"' + escapedVal + '"');
+        else if (op === 'not_contains') queryParts.push('-from:"' + escapedVal + '"');
         break;
 
       case 'from_domain':
         var domainVal = val.replace(/^@/, '');
+        var escapedDomain = escapeGmailSearchValue_(domainVal);
         if (op === 'equals' || op === 'contains')
-          queryParts.push('from:@' + domainVal);
+          queryParts.push('from:"@' + escapedDomain + '"');
         else if (op === 'not_contains')
-          queryParts.push('-from:@' + domainVal);
+          queryParts.push('-from:"@' + escapedDomain + '"');
         break;
 
       case 'to_address':
         if (op === 'equals' || op === 'contains')
-          queryParts.push('to:' + val);
+          queryParts.push('to:"' + escapedVal + '"');
         else if (op === 'not_contains')
-          queryParts.push('-to:' + val);
+          queryParts.push('-to:"' + escapedVal + '"');
         break;
 
       case 'subject':
-        if (op === 'contains')   queryParts.push('subject:' + val);
-        else if (op === 'equals') queryParts.push('subject:"' + val + '"');
-        else if (op === 'not_contains') queryParts.push('-subject:' + val);
+        if (op === 'contains')   queryParts.push('subject:"' + escapedVal + '"');
+        else if (op === 'equals') queryParts.push('subject:"' + escapedVal + '"');
+        else if (op === 'not_contains') queryParts.push('-subject:"' + escapedVal + '"');
         break;
 
       case 'body':
-        if (op === 'contains')   queryParts.push(val);
-        else if (op === 'not_contains') queryParts.push('-' + val);
+        if (op === 'contains')   queryParts.push('"' + escapedVal + '"');
+        else if (op === 'not_contains') queryParts.push('-"' + escapedVal + '"');
         break;
 
       case 'cc':
-        if (op === 'contains' || op === 'equals') queryParts.push('cc:' + val);
+        if (op === 'contains' || op === 'equals') queryParts.push('cc:"' + escapedVal + '"');
         break;
     }
   }

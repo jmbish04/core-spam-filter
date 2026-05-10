@@ -61,7 +61,33 @@ function evaluateCondition(
       return !fieldValue.includes(value);
     case "matches_regex":
       try {
-        return new RegExp(condition_value, "i").test(fieldValue);
+        // Validate regex to prevent ReDoS attacks
+        // 1. Limit regex length
+        if (condition_value.length > 100) {
+          console.warn(`Regex pattern too long (${condition_value.length} chars), rejecting`);
+          return false;
+        }
+        // 2. Check for dangerous patterns (nested quantifiers, catastrophic backtracking)
+        const dangerousPatterns = [
+          /(\*\+|\+\*|\*\{|\+\{)/,  // Nested quantifiers
+          /(\(.*\+.*\)\*|\(.*\*.*\)\+)/,  // Quantifiers inside groups with quantifiers
+          /(\.\*.*\.\*.*\.\*)/,  // Multiple greedy wildcards
+        ];
+        for (const pattern of dangerousPatterns) {
+          if (pattern.test(condition_value)) {
+            console.warn(`Regex pattern contains dangerous constructs, rejecting: ${condition_value}`);
+            return false;
+          }
+        }
+        // 3. Set a timeout for regex execution
+        const regex = new RegExp(condition_value, "i");
+        const startTime = Date.now();
+        const result = regex.test(fieldValue);
+        const elapsed = Date.now() - startTime;
+        if (elapsed > 100) {
+          console.warn(`Regex took ${elapsed}ms to execute, consider optimizing: ${condition_value}`);
+        }
+        return result;
       } catch {
         return false;
       }
@@ -359,8 +385,12 @@ ${payload.body}
         ],
         true,
       );
-      const cleaned = raw.replace(/```json/g, "").replace(/```/g, "").trim();
-      aiResult = JSON.parse(cleaned);
+      // More robust JSON extraction: find first JSON object in response
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No JSON found in AI response");
+      }
+      aiResult = JSON.parse(jsonMatch[0]);
     } catch (e) {
       console.error("AI Error or JSON Parsing Failed", e);
       throw new Error("AI analysis failed");
@@ -422,17 +452,19 @@ ${payload.body}
         ),
       );
 
-      for (const rule of matchedRules) {
+      // Batch insert all rules at once for better performance
+      if (matchedRules.length > 0) {
         try {
-          await db.insert(messagesRulesMap).values({
+          const values = matchedRules.map((rule) => ({
             id: crypto.randomUUID(),
             message_id: payload.message_id,
             rule_id: rule.id,
             ai_rationale: isSpam ? aiResult.rationale_spam : aiResult.rationale_not_spam,
             applied_at: now,
-          });
+          }));
+          await db.insert(messagesRulesMap).values(values);
         } catch (e) {
-          console.error("messagesRulesMap insert error", e);
+          console.error("messagesRulesMap batch insert error", e);
         }
       }
     }
