@@ -98,7 +98,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # This ensures the worker is updated on every push to main
-          command: deploy --env production
+          command: deploy # --env production
 
       - name: Output Summary
         run: |
