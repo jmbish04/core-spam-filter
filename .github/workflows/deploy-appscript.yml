@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'appscript/**'
-      - 'worker/**' # Assuming your Cloudflare code is here
   workflow_dispatch:
     inputs:
       target_project:
