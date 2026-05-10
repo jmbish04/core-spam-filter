@@ -1,11 +1,11 @@
 import type { ExecutionContext } from "@cloudflare/workers-types";
-import { routeAgentRequest } from "agents";
 
-import { SpamAgent } from "./backend/ai/agents/SpamAgent";
-import { app as honoApp } from "./backend/api/index";
+import { routeAgentRequest } from "agents";
 
 // @ts-ignore - Ignore missing types for the generated Astro worker
 import astroApp from "../dist/_worker.js/index.js";
+import { SpamAgent } from "./backend/ai/agents/SpamAgent";
+import { app as honoApp } from "./backend/api/index";
 
 // Export the Agent (Durable Object)
 export { SpamAgent };
@@ -33,7 +33,8 @@ const handler = {
 
     // Handle Agent routes
     if (url.pathname.startsWith("/agents/")) {
-      return routeAgentRequest(request, env);
+      const agentResponse = await routeAgentRequest(request, env);
+      if (agentResponse) return agentResponse;
     }
 
     // Pass all other requests to the Astro SSR engine
