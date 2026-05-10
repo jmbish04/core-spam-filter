@@ -53,17 +53,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install clasp & Dependencies
         run: |
           npm install -g @google/clasp
           npm install
 
-      - name: Provide Authentication (Python Setup)
-        run: python3 scripts/setup-clasp.py
-        env:
-          CLASPRC_JSON_RAW: ${{ secrets.CLASPRC_JSON }}
+      # - name: Provide Authentication (Python Setup)
+      #   run: python3 scripts/setup-clasp.py
+      #   env:
+      #     CLASPRC_JSON_RAW: ${{ secrets.CLASPRC_JSON }}
+
+      - name: Create ~/.clasprc.json
+        run: |
+          echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json          
 
       - name: Execute Apps Script Deployment
         id: deploy_script
