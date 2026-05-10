@@ -82,8 +82,10 @@ jobs:
       #     chmod +x scripts/deploy-appscript.sh
       #     bash scripts/deploy-appscript.sh
 
-      - name: Execute Node Deployment Script
+      - name: Execute Unified Deployment
         env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
           APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
           PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
