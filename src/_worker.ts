@@ -4,6 +4,9 @@ import { routeAgentRequest } from "agents";
 import { SpamAgent } from "./backend/ai/agents/SpamAgent";
 import { app as honoApp } from "./backend/api/index";
 
+// @ts-ignore - Ignore missing types for the generated Astro worker
+import astroApp from "../dist/_worker.js/index.js";
+
 // Export the Agent (Durable Object)
 export { SpamAgent };
 
@@ -33,9 +36,9 @@ const handler = {
       return routeAgentRequest(request, env);
     }
 
-    // Fallback: Let Astro SSR handle all other routes via the ASSETS binding
-    // This delegates frontend routes to the Astro SSR handler
-    return env.ASSETS.fetch(request);
+    // Pass all other requests to the Astro SSR engine
+    // (If the asset exists in ASSETS, Astro's middleware or Cloudflare's run_worker_first handles it)
+    return astroApp.fetch(request, env, ctx);
   },
 };
 
