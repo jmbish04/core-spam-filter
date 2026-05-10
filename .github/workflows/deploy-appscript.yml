@@ -55,10 +55,10 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install clasp & Dependencies
+      - name: Install clasp, pnpm & Dependencies
         run: |
-          npm install -g @google/clasp
-          npm install
+          npm install -g @google/clasp pnpm
+          pnpm install
 
       # - name: Provide Authentication (Python Setup)
       #   run: python3 scripts/setup-clasp.py

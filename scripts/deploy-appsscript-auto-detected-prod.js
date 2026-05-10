@@ -45,7 +45,12 @@ async function deployGAS(name, scriptId, envDeployId) {
 async function main() {
   // 1. Build Phase
   console.log('\n🏗️ [Build] Generating assets...');
-  run('npm run build');
+  run('pnpm run build');
+
+  // Copy .assetsignore to dist/ so Cloudflare doesn't upload unwanted assets
+  if (fs.existsSync('.assetsignore')) {
+    run('cp .assetsignore dist/ || true');
+  }
 
   // 2. Apps Script Phase
   const projects = [
@@ -53,15 +58,16 @@ async function main() {
     { key: '126colby', name: '126Colby', id: process.env.APPSCRIPT_PROJECT_ID_126COLBY, deployId: process.env.PROD_DEPLOYMENT_ID_126COLBY }
   ];
 
+  const targetProject = process.env.TARGET_PROJECT || 'both';
+
   for (const p of projects) {
-    if (p.id) await deployGAS(p.name, p.id, p.deployId);
+    if ((targetProject === 'both' || targetProject === p.key) && p.id) {
+      await deployGAS(p.name, p.id, p.deployId);
+    }
   }
 
-  // 3. Cloudflare Phase
-  console.log('\n☁️ [Cloudflare] Pushing latest Worker...');
-  run('npx wrangler deploy');
-  
-  console.log('\n🎉 ALL SYSTEMS UPDATED');
+  // 3. Cloudflare Phase is handled by the GitHub Workflow
+  console.log('\n🎉 APPS SCRIPT DEPLOYMENT COMPLETED');
 }
 
 main().catch(() => process.exit(1));
