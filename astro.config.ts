@@ -1,18 +1,13 @@
-// @ts-check
+// astro.config.ts
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
-const site = process.env.SITE ?? "http://localhost:4321";
-const base = process.env.BASE || "/";
-
-// https://astro.build/config
 export default defineConfig({
-  site,
   srcDir: "./src/frontend",
-  base,
-  output: "static",
+  // CHANGE: Set to 'server' to allow runtime API fetching
+  output: "server", 
   adapter: cloudflare({
     imageService: "passthrough",
     platformProxy: {
