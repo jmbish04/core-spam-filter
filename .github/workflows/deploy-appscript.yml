@@ -89,7 +89,7 @@ jobs:
           PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
           PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
           TARGET_PROJECT: ${{ github.event.inputs.target_project || 'both' }}
-        run: node scripts/deploy-prod.js          
+        run: node scripts/deploy-appsscript-auto-detected-prod.js      
 
       # --- 3. CLOUDFLARE WORKER DEPLOYMENT ---
       - name: Deploy to Cloudflare Workers
