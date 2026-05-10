@@ -38,7 +38,7 @@ EOF
   # Navigate to appscript directory and push
 # Example logic for your bash script
 if [ "$TARGET_PROJECT" == "gmail" ] || [ "$TARGET_PROJECT" == "both" ]; then
-  cd appscript/gmail
+  cd appscript
   clasp push -f
   # REDEPLOY to the same ID to keep the same URL
   clasp deploy -i "$PROD_DEPLOYMENT_ID_GMAIL" -d "Automated Deploy $(date)"
