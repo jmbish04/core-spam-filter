@@ -69,18 +69,27 @@ jobs:
         run: |
           echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json          
 
-      - name: Execute Deployment Script
-        id: deploy_script
+      # - name: Execute Deployment Script
+      #   id: deploy_script
+      #   env:
+      #     APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
+      #     APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
+      #     # These ensure you don't get new URLs every time
+      #     # PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
+      #     # PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
+      #     TARGET_PROJECT: ${{ github.event.inputs.target_project || 'both' }}
+      #   run: |
+      #     chmod +x scripts/deploy-appscript.sh
+      #     bash scripts/deploy-appscript.sh
+
+      - name: Execute Node Deployment Script
         env:
           APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
           APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
-          # These ensure you don't get new URLs every time
-          # PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
-          # PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
+          PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
+          PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
           TARGET_PROJECT: ${{ github.event.inputs.target_project || 'both' }}
-        run: |
-          chmod +x scripts/deploy-appscript.sh
-          bash scripts/deploy-appscript.sh
+        run: node scripts/deploy-prod.js          
 
       # --- 3. CLOUDFLARE WORKER DEPLOYMENT ---
       - name: Deploy to Cloudflare Workers
