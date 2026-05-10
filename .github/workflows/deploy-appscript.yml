@@ -75,8 +75,8 @@ jobs:
           APPSCRIPT_PROJECT_ID_GMAIL: ${{ secrets.APPSCRIPT_PROJECT_ID_GMAIL }}
           APPSCRIPT_PROJECT_ID_126COLBY: ${{ secrets.APPSCRIPT_PROJECT_ID_126COLBY }}
           # These ensure you don't get new URLs every time
-          PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
-          PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
+          # PROD_DEPLOYMENT_ID_GMAIL: ${{ secrets.PROD_DEPLOYMENT_ID_GMAIL }}
+          # PROD_DEPLOYMENT_ID_126COLBY: ${{ secrets.PROD_DEPLOYMENT_ID_126COLBY }}
           TARGET_PROJECT: ${{ github.event.inputs.target_project || 'both' }}
         run: |
           chmod +x scripts/deploy-appscript.sh
