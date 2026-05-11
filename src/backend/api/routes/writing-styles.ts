@@ -2,8 +2,8 @@ import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 
-import { writingStyles } from "../../db/schemas/writing_styles";
 import { styleConditions } from "../../db/schemas/style_conditions";
+import { writingStyles } from "../../db/schemas/writing_styles";
 
 const writingStylesRouter = new OpenAPIHono<{ Bindings: Env }>();
 

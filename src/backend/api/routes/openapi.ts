@@ -6,8 +6,6 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { apiReference } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
 
-
-
 const openapiRouter = new Hono<{ Bindings: Env }>();
 
 // OpenAPI specification
@@ -16,7 +14,8 @@ const openApiSpec = {
   info: {
     title: "Core Spam Filter API",
     version: "1.0.0",
-    description: "API documentation for Core Spam Filter - Cloudflare Workers AI powered spam detection and filtering",
+    description:
+      "API documentation for Core Spam Filter - Cloudflare Workers AI powered spam detection and filtering",
   },
   servers: [
     {

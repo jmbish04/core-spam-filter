@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "core-spam-filter" generated at 2026-05-10T14:02:34.844Z.

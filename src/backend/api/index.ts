@@ -12,8 +12,6 @@ import { rulesRouter } from "./routes/rules";
 import { statsRouter } from "./routes/stats";
 import { writingStylesRouter } from "./routes/writing-styles";
 
-
-
 const app = new Hono<{ Bindings: Env }>();
 
 // Middleware

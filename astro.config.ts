@@ -7,7 +7,7 @@ import { defineConfig } from "astro/config";
 export default defineConfig({
   srcDir: "./src/frontend",
   // CHANGE: Set to 'server' to allow runtime API fetching
-  output: "server", 
+  output: "server",
   adapter: cloudflare({
     imageService: "passthrough",
     platformProxy: {

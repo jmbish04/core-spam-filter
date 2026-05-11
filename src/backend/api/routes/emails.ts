@@ -1,5 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { getAgentByName } from "agents";
+
 import type { SpamAgent } from "@/backend/ai/agents/SpamAgent"; // Adjust path to your agent
 
 const emailsRouter = new OpenAPIHono<{ Bindings: Env }>();
@@ -66,7 +67,7 @@ const analyzeRoute = createRoute({
 
 emailsRouter.openapi(analyzeRoute, async (c) => {
   const authHeader = c.req.header("Authorization");
-  
+
   // 1. Access the secret directly as a string from the env object
   const secret = await c.env.WORKER_API_KEY.get();
 
@@ -76,11 +77,7 @@ emailsRouter.openapi(analyzeRoute, async (c) => {
   }
 
   // 2. Validate the authorization header
-  if (
-    !authHeader ||
-    !authHeader.startsWith("Bearer ") ||
-    authHeader.split(" ")[1] !== secret
-  ) {
+  if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.split(" ")[1] !== secret) {
     return c.json({ error: "Unauthorized" }, 401) as any;
   }
 
@@ -93,7 +90,7 @@ emailsRouter.openapi(analyzeRoute, async (c) => {
   try {
     // 4. Direct RPC Call via the Agents SDK
     const data = await agent.analyzeEmail(payload);
-    
+
     return c.json(data as z.infer<typeof AnalyzeEmailResponseSchema>);
   } catch (e: any) {
     console.error("Agent communication error", e);
