@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { getScreenshot } from "@googleworkspace/card-dev-assist";
+import { previewCard } from "@googleworkspace/card-dev-assist";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 
@@ -108,11 +108,12 @@ const spreadsheetLinkCard = {
 test.describe("Google Workspace Card Rendering", () => {
   test("should generate screenshot of homepage card", async () => {
     // Generate a PNG screenshot of the homepage card
-    const base64Data = await getScreenshot(homepageCard);
+    const { screenshot, url } = await previewCard(homepageCard);
 
     // Verify we got valid base64 data
-    expect(base64Data).toBeTruthy();
-    expect(typeof base64Data).toBe("string");
+    expect(screenshot).toBeTruthy();
+    expect(typeof screenshot).toBe("string");
+    expect(url).toBeTruthy();
 
     // Save the screenshot to the test-results directory for inspection
     const outputPath = join(
@@ -120,19 +121,21 @@ test.describe("Google Workspace Card Rendering", () => {
       "test-results",
       "homepage-card-preview.png",
     );
-    const buffer = Buffer.from(base64Data, "base64");
+    const buffer = Buffer.from(screenshot, "base64");
     await writeFile(outputPath, buffer);
 
     console.log(`Homepage card screenshot saved to: ${outputPath}`);
+    console.log(`Preview URL: ${url}`);
   });
 
   test("should generate screenshot of spreadsheet link card", async () => {
     // Generate a PNG screenshot of the spreadsheet link card
-    const base64Data = await getScreenshot(spreadsheetLinkCard);
+    const { screenshot, url } = await previewCard(spreadsheetLinkCard);
 
     // Verify we got valid base64 data
-    expect(base64Data).toBeTruthy();
-    expect(typeof base64Data).toBe("string");
+    expect(screenshot).toBeTruthy();
+    expect(typeof screenshot).toBe("string");
+    expect(url).toBeTruthy();
 
     // Save the screenshot to the test-results directory
     const outputPath = join(
@@ -140,10 +143,11 @@ test.describe("Google Workspace Card Rendering", () => {
       "test-results",
       "spreadsheet-link-card-preview.png",
     );
-    const buffer = Buffer.from(base64Data, "base64");
+    const buffer = Buffer.from(screenshot, "base64");
     await writeFile(outputPath, buffer);
 
     console.log(`Spreadsheet link card screenshot saved to: ${outputPath}`);
+    console.log(`Preview URL: ${url}`);
   });
 
   test("should verify card has required components", async () => {

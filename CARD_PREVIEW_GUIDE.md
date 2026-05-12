@@ -47,7 +47,7 @@ This will generate card screenshots in the `test-results/` directory during test
 Import and use the library in your code:
 
 ```typescript
-import { getScreenshot } from "@googleworkspace/card-dev-assist";
+import { previewCard } from "@googleworkspace/card-dev-assist";
 
 const card = {
   header: {
@@ -68,12 +68,15 @@ const card = {
   ],
 };
 
-// Generate a base64-encoded PNG screenshot
-const base64Data = await getScreenshot(card);
+// Generate a base64-encoded PNG screenshot and preview URL
+const { screenshot, url } = await previewCard(card);
 
-// Save or use the screenshot
-const buffer = Buffer.from(base64Data, "base64");
+// The screenshot is a base64-encoded PNG
+const buffer = Buffer.from(screenshot, "base64");
 await fs.writeFile("card-preview.png", buffer);
+
+// The URL can be used to view the card in the Google Card Builder
+console.log(`Preview your card at: ${url}`);
 ```
 
 ## Card Structure
@@ -113,6 +116,13 @@ npm run deploy:appscript
 ```
 
 This will deploy to both Gmail and Colby workspace accounts as configured in `.clasp.json`.
+
+## Network Requirements
+
+⚠️ The card preview tools require network access to Google's Card Builder service. See [CARD_PREVIEW_NETWORK.md](./CARD_PREVIEW_NETWORK.md) for details about:
+- Network requirements for local development
+- CI/CD considerations
+- Manual preview URLs when automated screenshots fail
 
 ## Learn More
 

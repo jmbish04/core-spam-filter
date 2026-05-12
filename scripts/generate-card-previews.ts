@@ -6,7 +6,7 @@
  *   npx tsx scripts/generate-card-previews.ts
  */
 
-import { getScreenshot } from "@googleworkspace/card-dev-assist";
+import { previewCard } from "@googleworkspace/card-dev-assist";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
@@ -128,14 +128,15 @@ async function generatePreviews() {
   for (const [name, card] of Object.entries(cards)) {
     try {
       console.log(`Generating preview for ${name} card...`);
-      const base64Data = await getScreenshot(card);
+      const { screenshot, url } = await previewCard(card);
 
       // Save the screenshot
       const outputPath = join(outputDir, `${name}-card.png`);
-      const buffer = Buffer.from(base64Data, "base64");
+      const buffer = Buffer.from(screenshot, "base64");
       await writeFile(outputPath, buffer);
 
       console.log(`✓ Saved to ${outputPath}`);
+      console.log(`  Preview URL: ${url}`);
     } catch (error) {
       console.error(`✗ Failed to generate ${name} card:`, error);
     }
