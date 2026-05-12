@@ -27,6 +27,24 @@ function getWorkerSecret_() {
 }
 
 /**
+ * Retrieves the email associated with this appscript.
+ * @returns {string|null} The active user's email used for execution & authorization with Google Services.
+ * @private
+ */
+function getActiveAccount_(){
+  return Session.getActiveUser().getEmail();
+}
+
+/**
+ * Retrieves the scriptId of the current appscript.
+ * @returns {string|null} The scriptId / driveId of the current AppsScript associated with this conference.
+ * @private
+ */
+function getScriptId_(){
+  return ScriptApp.getScriptId();
+}
+
+/**
  * Sends an email payload to the external Worker API for spam analysis.
  * @param {Object} payload - An object containing email metadata and body content.
  * @param {string} payload.message_id - The unique ID of the email message.
@@ -41,7 +59,7 @@ function getWorkerSecret_() {
  * @private
  */
 function analyzeEmail_(payload) {
-  var url = getWorkerUrl_() + "/api/emails/analyze";
+  var url = `${getWorkerUrl_()}/api/emails/analyze`;
   var secret = getWorkerSecret_();
 
   var options = {
@@ -96,13 +114,13 @@ function createTrigger_() {
   var triggers = ScriptApp.getProjectTriggers();
   for (var i = 0; i < triggers.length; i++) {
     if (triggers[i].getHandlerFunction() === "processRecentEmails_") {
-      Logger.log("Trigger already exists.");
+      console.log("Trigger already exists.");
       return;
     }
   }
 
   ScriptApp.newTrigger("processRecentEmails_").timeBased().everyHours(1).create();
-  Logger.log("Trigger created successfully.");
+  console.log("Trigger created successfully.");
 }
 
 /**
@@ -128,13 +146,13 @@ function setConfig_(workerUrl, workerApiKey) {
  * @private
  */
 function log_(functionName, genericError, fullError) {
-  var message = "[" + functionName + "] " + genericError + " | Details: " + fullError;
-  Logger.log(message);
+  const message = `[ ${functionName} ]: ${genericError} | Details: ${fullError}`;
+  console.log(message);
 
-  var workerUrl = getWorkerUrl_();
-  var secret = getWorkerSecret_();
+  const workerUrl = getWorkerUrl_();
+  const secret = getWorkerSecret_();
   if (workerUrl && secret) {
-    var options = {
+    const options = {
       method: "post",
       contentType: "application/json",
       headers: {
