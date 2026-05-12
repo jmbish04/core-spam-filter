@@ -8,7 +8,6 @@
 import { test, expect } from "@playwright/test";
 import { previewCard } from "@googleworkspace/card-dev-assist";
 import { writeFile } from "fs/promises";
-import { join } from "path";
 
 /**
  * Sample card object matching the structure created in Cards.gs
@@ -106,7 +105,7 @@ const spreadsheetLinkCard = {
 };
 
 test.describe("Google Workspace Card Rendering", () => {
-  test("should generate screenshot of homepage card", async () => {
+  test("should generate screenshot of homepage card", async (_fixtures, testInfo) => {
     // Generate a PNG screenshot of the homepage card
     const { screenshot, url } = await previewCard(homepageCard);
 
@@ -115,12 +114,8 @@ test.describe("Google Workspace Card Rendering", () => {
     expect(typeof screenshot).toBe("string");
     expect(url).toBeTruthy();
 
-    // Save the screenshot to the test-results directory for inspection
-    const outputPath = join(
-      process.cwd(),
-      "test-results",
-      "homepage-card-preview.png",
-    );
+    // Save the screenshot using Playwright's outputPath
+    const outputPath = testInfo.outputPath("homepage-card-preview.png");
     const buffer = Buffer.from(screenshot, "base64");
     await writeFile(outputPath, buffer);
 
@@ -128,7 +123,7 @@ test.describe("Google Workspace Card Rendering", () => {
     console.log(`Preview URL: ${url}`);
   });
 
-  test("should generate screenshot of spreadsheet link card", async () => {
+  test("should generate screenshot of spreadsheet link card", async (_fixtures, testInfo) => {
     // Generate a PNG screenshot of the spreadsheet link card
     const { screenshot, url } = await previewCard(spreadsheetLinkCard);
 
@@ -137,12 +132,8 @@ test.describe("Google Workspace Card Rendering", () => {
     expect(typeof screenshot).toBe("string");
     expect(url).toBeTruthy();
 
-    // Save the screenshot to the test-results directory
-    const outputPath = join(
-      process.cwd(),
-      "test-results",
-      "spreadsheet-link-card-preview.png",
-    );
+    // Save the screenshot using Playwright's outputPath
+    const outputPath = testInfo.outputPath("spreadsheet-link-card-preview.png");
     const buffer = Buffer.from(screenshot, "base64");
     await writeFile(outputPath, buffer);
 
