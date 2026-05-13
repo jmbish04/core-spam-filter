@@ -12,6 +12,8 @@ const LogSchema = z.object({
   error_summary: z.string().optional(),
   full_error: z.string().optional(),
   timestamp: z.string().optional(),
+  inbox_account: z.string().optional(),
+  gas_fileId: z.string().optional(),
 });
 
 const postLogRoute = createRoute({
@@ -73,6 +75,8 @@ logsRouter.openapi(postLogRoute, async (c) => {
       error_summary: payload.error_summary || null,
       full_error: payload.full_error || null,
       timestamp: payload.timestamp || new Date().toISOString(),
+      inbox_account: payload.inbox_account || null,
+      gas_fileId: payload.gas_fileId || null,
     });
     return c.json({ success: true }, 201);
   } catch (err) {

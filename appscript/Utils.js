@@ -163,7 +163,7 @@ function log_(functionName, genericError, fullError) {
         error_summary: genericError,
         full_error: fullError,
         timestamp: getD1Timestamp_(),
-        inbox_account: getActiveAccount_(), 
+        inbox_account: getActiveAccount_(),
         gas_fileId: getScriptId_(),
       }),
       muteHttpExceptions: true,
