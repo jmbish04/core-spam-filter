@@ -49,7 +49,6 @@ Import and use the library in your code:
 ```typescript
 import { previewCard } from "@googleworkspace/card-dev-assist";
 import fs from "fs/promises";
-import fs from "fs/promises";
 
 const card = {
   header: {
