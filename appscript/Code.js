@@ -35,7 +35,7 @@ const NEW_EMAIL_LABEL_NAME    = "🆕 New-Email";
 function doPost(e) {
   // ── Auth ───────────────────────────────────────────────────────────────────
   var props = PropertiesService.getScriptProperties();
-  var expectedSecret = props.getProperty('APPSCRIPT_WEBHOOK_SECRET');
+  var expectedSecret = props.getProperty('WORKER_API_KEY');
 
   if (expectedSecret) {
     var authHeader = (e.headers && e.headers['Authorization']) || '';
