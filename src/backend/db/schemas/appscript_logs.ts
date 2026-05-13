@@ -6,4 +6,6 @@ export const appscriptLogs = sqliteTable("appscript_logs", {
   error_summary: text("error_summary"),
   full_error: text("full_error"),
   timestamp: text("timestamp"),
+  inbox_account: text("inbox_account"),
+  gas_fileId: text("gas_fileId"),
 });
