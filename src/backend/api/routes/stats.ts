@@ -2,8 +2,6 @@ import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 
-
-
 import { emailsLog } from "../../db/schemas/emails_log";
 
 const statsRouter = new OpenAPIHono<{ Bindings: Env }>();

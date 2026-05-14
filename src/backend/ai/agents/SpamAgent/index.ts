@@ -2,13 +2,13 @@ import { Agent } from "agents";
 import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 
+import type { SpamAgentState, WritingStyle, StyleCondition, EmailAnalysisResult } from "./types";
+
 import { emailsLog } from "../../../db/schemas/emails_log";
 import { filterRules } from "../../../db/schemas/filter_rules";
-import { writingStyles } from "../../../db/schemas/writing_styles";
-import { styleConditions } from "../../../db/schemas/style_conditions";
 import { messagesRulesMap } from "../../../db/schemas/messages_rules_map";
-
-import type { SpamAgentState, WritingStyle, StyleCondition, EmailAnalysisResult } from "./types";
+import { styleConditions } from "../../../db/schemas/style_conditions";
+import { writingStyles } from "../../../db/schemas/writing_styles";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -69,13 +69,15 @@ function evaluateCondition(
         }
         // 2. Check for dangerous patterns (nested quantifiers, catastrophic backtracking)
         const dangerousPatterns = [
-          /(\*\+|\+\*|\*\{|\+\{)/,  // Nested quantifiers
-          /(\(.*\+.*\)\*|\(.*\*.*\)\+)/,  // Quantifiers inside groups with quantifiers
-          /(\.\*.*\.\*.*\.\*)/,  // Multiple greedy wildcards
+          /(\*\+|\+\*|\*\{|\+\{)/, // Nested quantifiers
+          /(\(.*\+.*\)\*|\(.*\*.*\)\+)/, // Quantifiers inside groups with quantifiers
+          /(\.\*.*\.\*.*\.\*)/, // Multiple greedy wildcards
         ];
         for (const pattern of dangerousPatterns) {
           if (pattern.test(condition_value)) {
-            console.warn(`Regex pattern contains dangerous constructs, rejecting: ${condition_value}`);
+            console.warn(
+              `Regex pattern contains dangerous constructs, rejecting: ${condition_value}`,
+            );
             return false;
           }
         }
@@ -85,7 +87,9 @@ function evaluateCondition(
         const result = regex.test(fieldValue);
         const elapsed = Date.now() - startTime;
         if (elapsed > 100) {
-          console.warn(`Regex took ${elapsed}ms to execute, consider optimizing: ${condition_value}`);
+          console.warn(
+            `Regex took ${elapsed}ms to execute, consider optimizing: ${condition_value}`,
+          );
         }
         return result;
       } catch {
@@ -125,11 +129,7 @@ type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
  * Primary provider: Google AI Studio (Gemini 2.0 Flash).
  * Fallback: Workers AI (@cf/openai/gpt-oss-120b) in AI Gateway compatibility mode.
  */
-async function callAIGateway(
-  env: Env,
-  messages: ChatMessage[],
-  jsonMode = true,
-): Promise<string> {
+async function callAIGateway(env: Env, messages: ChatMessage[], jsonMode = true): Promise<string> {
   let accountId: string | undefined;
   let geminiKey: string | undefined;
   let cfToken: string | undefined;
@@ -211,13 +211,10 @@ async function callAIGateway(
   }
 
   // ── Last-resort: native Workers AI binding ──────────────────────────────────
-  const result = await (env.AI as any).run(
-    (env as any).MODEL_DRAFT ?? "@cf/openai/gpt-oss-120b",
-    {
-      messages,
-      ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
-    },
-  );
+  const result = await (env.AI as any).run((env as any).MODEL_DRAFT ?? "@cf/openai/gpt-oss-120b", {
+    messages,
+    ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+  });
   return result.response ?? result.choices?.[0]?.message?.content ?? "";
 }
 
@@ -476,4 +473,3 @@ ${payload.body}
     };
   }
 }
-

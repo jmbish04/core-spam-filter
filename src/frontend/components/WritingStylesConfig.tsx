@@ -446,10 +446,7 @@ function StyleDialog({ open, onOpenChange, initialStyle, onSaved }: StyleDialogP
             <div className="flex flex-wrap items-end gap-2 rounded border border-dashed px-3 py-2">
               <div className="space-y-1">
                 <Label className="text-xs">Field</Label>
-                <Select
-                  value={newField}
-                  onValueChange={(v) => setNewField(v as ConditionField)}
-                >
+                <Select value={newField} onValueChange={(v) => setNewField(v as ConditionField)}>
                   <SelectTrigger className="h-8 w-[140px] text-xs">
                     <SelectValue />
                   </SelectTrigger>
@@ -490,7 +487,12 @@ function StyleDialog({ open, onOpenChange, initialStyle, onSaved }: StyleDialogP
                   placeholder="e.g. @acme.com"
                 />
               </div>
-              <Button size="sm" variant="secondary" onClick={addCondition} disabled={!newValue.trim()}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={addCondition}
+                disabled={!newValue.trim()}
+              >
                 + Add
               </Button>
             </div>

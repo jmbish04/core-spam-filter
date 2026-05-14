@@ -8,7 +8,7 @@ export default defineConfig({
   site: "https://core-spam-filter.hacolby.workers.dev",
   srcDir: "./src/frontend",
   // CHANGE: Set to 'server' to allow runtime API fetching
-  output: "server", 
+  output: "server",
   adapter: cloudflare({
     imageService: "passthrough",
     platformProxy: {

@@ -2,8 +2,6 @@ import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 
-
-
 import { filterRules } from "../../db/schemas/filter_rules";
 
 const rulesRouter = new OpenAPIHono<{ Bindings: Env }>();
